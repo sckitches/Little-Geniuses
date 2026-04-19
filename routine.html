@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Routine - Little Genius Academy Academy</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="logo.png">
+    <style>
+        body { background: linear-gradient(135deg, #0fbcf9 0%, #3498db 100%); color: white; }
+        .routine-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            padding: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .routine-card {
+            background: white;
+            border-radius: 40px;
+            padding: 30px;
+            text-align: center;
+            color: #333;
+            cursor: pointer;
+            transition: 0.3s;
+            border: 8px solid white;
+            position: relative;
+        }
+        .routine-card.done {
+            border-color: #00d8d6;
+            background: #e1fcfc;
+            transform: scale(0.95);
+            opacity: 0.8;
+        }
+        .done-badge {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 2.5rem;
+            display: none;
+        }
+        .routine-card.done .done-badge { display: block; }
+        .routine-emoji { font-size: 6rem; margin-bottom: 10px; }
+        .routine-title { font-family: 'Fredoka One'; font-size: 1.8rem; margin-bottom: 5px; }
+    </style>
+</head>
+<body class="bg-clouds">
+    <nav class="top-nav">
+        <a href="index.html" class="logo">
+            <img src="logo.png" alt="Logo" class="logo-img">
+            Little Genius Academy Academy
+        </a>
+    </nav>
+
+    <main class="container">
+        <header class="text-center" style="margin-top:2rem;">
+            <h1 class="rainbow-text" style="font-size:3.5rem;">Daily Adventure! ☀️</h1>
+            <p style="font-size:1.5rem; font-weight:700;">Check off your tasks and earn stars!</p>
+        </header>
+
+        <div class="routine-grid" id="routineGrid">
+            <!-- Morning -->
+            <div class="routine-card" onclick="markDone(this, 'Time to wake up!')">
+                <div class="done-badge">✅</div>
+                <div class="routine-emoji">☀️</div>
+                <div class="routine-title">Rise & Shine</div>
+                <p>Wake up with a smile!</p>
+            </div>
+            <!-- Brush -->
+            <div class="routine-card" onclick="markDone(this, 'Brushy brushy!')">
+                <div class="done-badge">✅</div>
+                <div class="routine-emoji">🦷</div>
+                <div class="routine-title">Brush Teeth</div>
+                <p>Sparkly white teeth!</p>
+            </div>
+            <!-- Breakfast -->
+            <div class="routine-card" onclick="markDone(this, 'Yum yum!')">
+                <div class="done-badge">✅</div>
+                <div class="routine-emoji">🥣</div>
+                <div class="routine-title">Breakfast</div>
+                <p>Energy for the day!</p>
+            </div>
+            <!-- Play -->
+            <div class="routine-card" onclick="markDone(this, 'Let\'s learn together!')">
+                <div class="done-badge">✅</div>
+                <div class="routine-emoji">📖</div>
+                <div class="routine-title">Learning Time</div>
+                <p>Practice your ABCs!</p>
+            </div>
+            <!-- Nap -->
+            <div class="routine-card" onclick="markDone(this, 'Shhh... nap time!')">
+                <div class="done-badge">✅</div>
+                <div class="routine-emoji">💤</div>
+                <div class="routine-title">Nap Time</div>
+                <p>Rest your brain!</p>
+            </div>
+            <!-- Bedtime -->
+            <div class="routine-card" onclick="markDone(this, 'Night night!')">
+                <div class="done-badge">✅</div>
+                <div class="routine-emoji">🌙</div>
+                <div class="routine-title">Bedtime</div>
+                <p>Sweet dreams!</p>
+            </div>
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+    <script>
+        function markDone(card, msg) {
+            if(card.classList.contains('done')) {
+                card.classList.remove('done');
+            } else {
+                card.classList.add('done');
+                createConfetti(card);
+                speak(msg);
+                
+                // Add a star to the DNA!
+                const dna = JSON.parse(localStorage.getItem('geniusDNA') || '{"stars":0}');
+                dna.stars += 10;
+                localStorage.setItem('geniusDNA', JSON.stringify(dna));
+                refreshHUD();
+            }
+        }
+
+        function speak(t) {
+            const u = new SpeechSynthesisUtterance(t);
+            u.pitch = 1.2;
+            window.speechSynthesis.speak(u);
+        }
+    </script>
+</body>
+</html>

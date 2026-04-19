@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Balloon Pop - Little Genius Academyes</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/png" href="logo.png">
+    <style>
+        .game-canvas {
+            position: relative;
+            background: white;
+            height: 60vh;
+            border-radius: 30px;
+            overflow: hidden;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.1);
+            border: 5px solid var(--pink);
+            cursor: crosshair;
+        }
+        
+        .score-board {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--dark);
+            color: white;
+            font-size: 2rem;
+            padding: 10px 30px;
+            border-radius: 50px;
+            z-index: 10;
+        }
+
+        .balloon {
+            position: absolute;
+            font-size: 4rem;
+            cursor: pointer;
+            transition: transform 0.1s;
+            user-select: none;
+        }
+        .balloon:active {
+            transform: scale(1.5);
+        }
+
+        @keyframes floatUp {
+            from { top: 100%; }
+            to { top: -20%; }
+        }
+        
+        .nav-fixed {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+        }
+    </style>
+</head>
+<body class="bg-clouds bg-pink">
+    <!-- Navigation -->
+    <nav class="top-nav">
+        <a href="index.html" class="logo">
+            <img src="logo.png" alt="Little Genius Academy Academy Logo" class="logo-img">
+            Little Genius Academy
+        </a>
+        <div class="nav-links">
+            <a href="games.html" class="nav-btn bg-red">⬅ Games</a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container text-center">
+        <header style="margin-top:2rem;">
+            <h1 class="rainbow-text" style="font-size:3.5rem;">Balloon Pop! 🎈</h1>
+            <p style="color:white; font-size:1.5rem; text-shadow:2px 2px 4px rgba(0,0,0,0.2);">Tap the balloons as fast as you can!</p>
+        </header>
+        <div class="game-canvas" id="canvas">
+            <div class="score-board">Score: <span id="score">0</span> 🌟</div>
+        </div>
+        <div class="text-center" style="margin-top:2rem;">
+            <p style="font-size:1.5rem; color:var(--dark); font-family:'Quicksand'">Tap as many balloons as you can before they float away!</p>
+            <button class="nav-btn bg-blue" onclick="startGame()" style="font-size:2rem; padding:1rem 3rem; margin-top:1rem; border:none; cursor:pointer;">Start Game 🎮</button>
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+    <script>
+        let score = 0;
+        let gameInterval;
+        let isPlaying = false;
+        const canvas = document.getElementById('canvas');
+        const scoreDisplay = document.getElementById('score');
+
+        function startGame() {
+            if (isPlaying) return;
+            isPlaying = true;
+            score = 0;
+            scoreDisplay.innerText = score;
+            canvas.innerHTML = '<div class="score-board">Score: <span id="score">0</span> 🌟</div>';
+            
+            // Spawn a balloon every 800ms
+            gameInterval = setInterval(spawnBalloon, 800);
+            
+            // End game after 30 seconds
+            setTimeout(() => {
+                clearInterval(gameInterval);
+                isPlaying = false;
+                alert('Great job Little Genius Academy! \\nYou scored: ' + score + ' stars! 🌟');
+            }, 30000);
+        }
+
+        function spawnBalloon() {
+            const colors = ["🎈", "⚽", "🏀", "🌍", "🔮", "🍎"]; 
+            const shape = colors[Math.floor(Math.random() * colors.length)];
+            
+            const balloon = document.createElement('div');
+            balloon.className = 'balloon';
+            balloon.innerText = shape;
+            
+            // Random horizontal start
+            const startX = Math.random() * (canvas.offsetWidth - 80);
+            balloon.style.left = startX + 'px';
+            
+            // Randomly pick a speed
+            const speed = (Math.random() * 3) + 3; 
+            balloon.style.animation = `floatUp ${speed}s linear`;
+            
+            balloon.onclick = function() {
+                score += 1;
+                document.getElementById('score').innerText = score;
+                createConfetti(balloon);
+                
+                // Play a simple pop sound (built-in HTML5 Audio if we had a file, but we'll just remove it)
+                balloon.remove();
+            };
+            
+            canvas.appendChild(balloon);
+            
+            // Remove from DOM when animation ends to prevent memory leak
+            setTimeout(() => {
+                if (balloon.parentElement) {
+                    balloon.remove();
+                }
+            }, speed * 1000);
+        }
+    </script>
+</body>
+</html>

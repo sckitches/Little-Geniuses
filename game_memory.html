@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory Match - Little Genius Academyes</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .memory-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            max-width: 600px;
+            margin: 2rem auto;
+        }
+        .memory-card {
+            aspect-ratio: 1;
+            background: white;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            cursor: pointer;
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+            user-select: none;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 4px solid var(--purple);
+            position: relative;
+            transform-style: preserve-3d;
+        }
+        .memory-card.flipped {
+            transform: rotateY(180deg);
+        }
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .card-back {
+            background: var(--purple);
+            color: white;
+            font-size: 2rem;
+        }
+        .card-front {
+            background: white;
+            transform: rotateY(180deg);
+        }
+        .matched {
+            opacity: 0.5;
+            cursor: default;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="bg-clouds bg-purple">
+    <nav class="top-nav">
+        <div class="logo">
+            <span class="mascot" onclick="window.location.href='index.html'">🐵</span> Little Genius Academyes
+        </div>
+        <div class="nav-links">
+            <a href="games.html" class="nav-btn bg-red">⬅ Back to Games</a>
+        </div>
+    </nav>
+
+    <main class="container text-center">
+        <h1 class="rainbow-text" style="font-size: 3rem; color: white; margin-top: 1rem;">Memory Match!</h1>
+        <p style="color: white; font-family: 'Quicksand'; font-size: 1.2rem;">Find all the pairs to win!</p>
+
+        <div class="memory-grid" id="memoryGrid"></div>
+
+        <button class="nav-btn bg-yellow" onclick="resetGame()" style="margin-top: 2rem; border:none; color:var(--dark);">Restart Game 🔁</button>
+    </main>
+
+    <script src="script.js"></script>
+    <script>
+        const emojis = ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼'];
+        let cards = [...emojis, ...emojis];
+        let flippedCards = [];
+        let matchedCount = 0;
+
+        function shuffle(array) {
+            return array.sort(() => Math.random() - 0.5);
+        }
+
+        function createCard(emoji) {
+            const card = document.createElement('div');
+            card.className = 'memory-card';
+            card.innerHTML = `
+                <div class="card-back">❓</div>
+                <div class="card-front">${emoji}</div>
+            `;
+            card.onclick = () => flipCard(card, emoji);
+            return card;
+        }
+
+        function flipCard(card, emoji) {
+            if (flippedCards.length < 2 && !card.classList.contains('flipped') && !card.classList.contains('matched')) {
+                card.classList.add('flipped');
+                flippedCards.push({ card, emoji });
+
+                if (flippedCards.length === 2) {
+                    checkMatch();
+                }
+            }
+        }
+
+        function checkMatch() {
+            const [c1, c2] = flippedCards;
+            if (c1.emoji === c2.emoji) {
+                setTimeout(() => {
+                    c1.card.classList.add('matched');
+                    c2.card.classList.add('matched');
+                    createConfetti(c1.card);
+                    createConfetti(c2.card);
+                    matchedCount++;
+                    if (matchedCount === emojis.length) {
+                        setTimeout(() => alert('🎉 You found them all! Genius! 🎉'), 500);
+                    }
+                }, 500);
+            } else {
+                setTimeout(() => {
+                    c1.card.classList.remove('flipped');
+                    c2.card.classList.remove('flipped');
+                }, 1000);
+            }
+            setTimeout(() => {
+                flippedCards = [];
+            }, 1000);
+        }
+
+        function resetGame() {
+            const grid = document.getElementById('memoryGrid');
+            grid.innerHTML = '';
+            cards = shuffle([...emojis, ...emojis]);
+            cards.forEach(emoji => {
+                grid.appendChild(createCard(emoji));
+            });
+            flippedCards = [];
+            matchedCount = 0;
+        }
+
+        resetGame();
+    </script>
+</body>
+</html>

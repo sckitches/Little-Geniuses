@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animal Kingdom - Little Genius Academy</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="logo.png">
+    <style>
+        body { background: #55efc4; color: #2d3436; overflow-x: hidden; }
+        
+        .animal-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Mode Switcher */
+        .mode-nav {
+            background: white;
+            padding: 20px;
+            border-radius: 50px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .mode-btn {
+            padding: 15px 40px;
+            border-radius: 30px;
+            border: none;
+            font-family: 'Fredoka One';
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .mode-btn.active { background: #00b894; color: white; transform: scale(1.1); }
+
+        /* The BIG Animal Grid */
+        .animal-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 40px;
+        }
+
+        .giant-animal-card {
+            background: white;
+            border-radius: 50px;
+            padding: 40px;
+            text-align: center;
+            border: 10px solid white;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+        }
+
+        .giant-animal-card:hover { transform: scale(1.08) translateY(-10px); border-color: #ffeaa7; }
+        .animal-emoji { font-size: 10rem; margin-bottom: 20px; filter: drop-shadow(0 15px 15px rgba(0,0,0,0.1)); }
+        .animal-name { font-family: 'Fredoka One'; font-size: 3rem; color: #00b894; }
+
+        /* Habitat Explorer Mode */
+        #habitatExplorer {
+            display: none;
+            background: white;
+            border-radius: 60px;
+            padding: 50px;
+            animation: slideUp 0.6s forwards;
+            min-height: 80vh;
+            border: 15px solid #00d2d3;
+        }
+
+        .habitat-nav {
+            display: flex;
+            overflow-x: auto;
+            gap: 15px;
+            margin-bottom: 40px;
+            padding-bottom: 10px;
+        }
+
+        .habitat-chip {
+            padding: 15px 30px;
+            background: #f1f2f6;
+            border-radius: 20px;
+            font-weight: bold;
+            text-align: center;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .habitat-chip.active { background: #00d2d3; color: white; }
+
+        .book-container {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            gap: 40px;
+            align-items: start;
+        }
+
+        .book-page {
+            background: #fffafa;
+            border-radius: 40px;
+            padding: 40px;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.05);
+            min-height: 500px;
+            position: relative;
+        }
+
+        .page-header { font-family: 'Fredoka One'; font-size: 3.5rem; margin-bottom: 20px; color: #0984e3; }
+        .page-text { font-size: 1.8rem; font-family: 'Quicksand'; line-height: 1.6; color: #333; }
+        
+        .book-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 30px;
+        }
+        .page-btn {
+            background: #00d2d3;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+
+        .quiz-option {
+            background: #fff;
+            border: 4px solid #00d2d3;
+            color: #00d2d3;
+            padding: 15px;
+            border-radius: 20px;
+            font-family: 'Fredoka One';
+            cursor: pointer;
+            margin-top: 10px;
+            width: 100%;
+            transition: 0.3s;
+        }
+        .quiz-option:hover { background: #00d2d3; color: white; }
+
+        @keyframes slideUp { from { transform: translateY(100px); opacity:0; } to { transform: translateY(0); opacity:1; } }
+
+        /* ❄️ SNOWFLAKE EFFECT */
+        #snowContainer {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+            display: none;
+        }
+        @keyframes snowfall {
+            0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(110vh) rotate(360deg); opacity: 0.2; }
+        }
+        .snowflake {
+            position: absolute;
+            top: -30px;
+            color: white;
+            font-size: 1.5rem;
+            animation: snowfall linear infinite;
+            opacity: 0.8;
+            text-shadow: 0 0 6px rgba(200,240,255,0.9);
+        }
+
+        /* ❄️ ARCTIC THEME OVERRIDE */
+        body.arctic-mode {
+            background: linear-gradient(135deg, #74b9ff, #a29bfe, #dfe6e9);
+            transition: background 1s;
+        }
+        body.arctic-mode #habitatExplorer {
+            background: linear-gradient(180deg, #ebf4fd, #dfe6e9);
+            border-color: #74b9ff;
+        }
+        body.arctic-mode .page-header { color: #0984e3; }
+        body.arctic-mode .book-page {
+            background: rgba(255,255,255,0.75);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 0 30px rgba(116,185,255,0.3), inset 0 0 20px rgba(0,0,0,0.04);
+        }
+        body.arctic-mode .page-btn {
+            background: linear-gradient(90deg, #74b9ff, #0984e3);
+        }
+        body.arctic-mode .habitat-chip.active { background: #0984e3; }
+        body.arctic-mode #habitatArt {
+            filter: drop-shadow(0 0 20px rgba(116,185,255,0.8));
+        }
+
+        /* Ice Crystal Badge */
+        .ice-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #74b9ff, #a29bfe);
+            color: white;
+            border-radius: 20px;
+            padding: 5px 15px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="top-nav">
+        <a href="index.html" class="logo">
+            <img src="logo.png" alt="Logo" class="logo-img">
+            Little Genius Academy
+        </a>
+    </nav>
+
+    <main class="animal-container">
+        <header class="text-center" style="margin: 3rem 0;">
+            <h1 class="rainbow-text" style="font-size: 4.5rem;">Animal Kingdom 🦁🐘</h1>
+            
+            <div class="mode-nav">
+                <button class="mode-btn active" id="btnToddler" onclick="switchMode('toddler')">Toddler Mode (Huge!)</button>
+                <button class="mode-btn" id="btnExplorer" onclick="switchMode('explorer')">Habitat Encyclopedia (5+ Pages!)</button>
+            </div>
+        </header>
+
+        <!-- Toddler Mode Grid -->
+        <div class="animal-grid" id="animalGrid"></div>
+
+        <!-- Habitat Explorer Mode (Book) -->
+        <div id="habitatExplorer">
+            <div class="habitat-nav" id="habitatNav"></div>
+            
+            <div class="book-container">
+                <div id="habitatArt" style="font-size: 20rem; text-align:center; animation: bounce 3s infinite;">🌴</div>
+                
+                <div class="book-page">
+                    <div id="iceBadge" class="ice-badge" style="display:none;">❄️ ICY WORLD</div>
+                    <h2 class="page-header" id="pageTitle">Welcome</h2>
+                    <p class="page-text" id="pageContent">Pick a habitat to start your book!</p>
+                    <div id="quizBox" style="display:none; margin-top: 20px;"></div>
+                    
+                    <div class="book-controls">
+                        <button class="page-btn" id="prevBtn" onclick="prevPage()">⬅ Back</button>
+                        <span id="pageCounter" style="font-weight:bold; font-size:1.5rem;">Page 1 of 10</span>
+                        <button class="page-btn" id="nextBtn" onclick="nextPage()">Next ➡️</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Snowflake Container -->
+    <div id="snowContainer"></div>
+
+    <script src="script.js"></script>
+    <script>
+        const animalList = [
+            { name: "Lion", emoji: "🦁", sound: "Roar!", color: "#ffeaa7" },
+            { name: "Elephant", emoji: "🐘", sound: "Trumpet!", color: "#dfe6e9" },
+            { name: "Giraffe", emoji: "🦒", sound: "Stretch!", color: "#fab1a0" },
+            { name: "Tiger", emoji: "🐯", sound: "Grrr!", color: "#ff7675" },
+            { name: "Monkey", emoji: "🐵", sound: "OOH OOH!", color: "#fdcb6e" },
+            { name: "Panda", emoji: "🐼", sound: "Crunch!", color: "#f1f2f6" },
+            { name: "Zebra", emoji: "🦓", sound: "Gallop!", color: "#f5f6fa" }
+        ];
+
+        const habitats = [
+            { 
+                id: 'jungle', icon: '🌴', name: 'Deep Jungle', color: '#2ecc71',
+                pages: [
+                    { t: "Welcome to the Jungle!", c: "The Jungle is a thick forest where it rains a lot. It is home to millions of animals and huge trees that touch the clouds!" },
+                    { t: "The Canopy", c: "The canopy is like a giant green roof on top of the jungle made of tree leaves. Monkeys live here to stay safe from the ground." },
+                    { t: "The Hunters", c: "The Tiger is the King of the Jungle. They have stripes to help them hide in the long grass while they sneak up on lunch!" },
+                    { t: "Colorful Birds", c: "Macaws and Toucans have bright feathers so they can find each other in the green leaves." },
+                    { t: "Ground Level", c: "At the bottom, it is very dark! Snakes and bugs crawl here among the giant roots of the trees." },
+                    { t: "Jungle Rain", c: "It rains almost every day here. This water makes the jungle the greenest place on Earth." },
+                    { t: "Night Time", c: "When the sun goes down, Panthers and Owls wake up to hunt in the dark." },
+                    { t: "Hidden Frogs", c: "Tiny leaf frogs are very colorful. Their bright colors tell other animals 'Don't eat me, I'm spicy!'" },
+                    { t: "Amazing Flowers", c: "Jungle flowers can be as big as a car tire! They smell very strong to attract butterflies." },
+                    { t: "Jungle Quiz!", c: "Which animal is the King of the Jungle? 🦁", options: ["Tiger 🐯", "Lion 🦁", "Elephant 🐘"], correct: 0 }
+                ]
+            },
+            { 
+                id: 'ocean', icon: '🌊', name: 'Blue Ocean', color: '#3498db',
+                pages: [
+                    { t: "The Wide Ocean", c: "The ocean covers 70% of our planet. It starts at the beach and goes down deeper than the tallest mountain!" },
+                    { t: "Dolphin Friends", c: "Dolphins are super smart. They talk to each other using whistles and clicks under the water." },
+                    { t: "The Giants", c: "The Blue Whale is the biggest animal to ever live. It is as big as three school buses!" },
+                    { t: "Coral Reefs", c: "Coral reefs are like underwater cities. They are full of colorful fish, sea turtles, and starfish." },
+                    { t: "Shark Mastery", c: "Sharks have been in the ocean for millions of years. They have 'super-smell' to find fish from miles away." },
+                    { t: "Deep Sea", c: "In the deep ocean, it is cold and dark. Some fish here actually glow in the dark like big flashlights!" },
+                    { t: "Tides", c: "The moon pulls on the ocean water to make it go in and out at the beach. We call this the Tide." },
+                    { t: "Octopus Magic", c: "An Octopus has three hearts and blue blood! They can also change color to hide from sharks." },
+                    { t: "Ocean Ice", c: "At the top and bottom of the world, bits of the ocean freeze into giant icebergs." },
+                    { t: "Ocean Quiz!", c: "Which is the biggest animal in the world? 🐳", options: ["Shark 🦈", "Blue Whale 🐳", "Dolphin 🐬"], correct: 1 }
+                ]
+            },
+            { 
+                id: 'arctic', icon: '❄️', name: 'Frozen Arctic', color: '#74b9ff',
+                icy: true,
+                pages: [
+                    { t: "❄️ Welcome to the Frozen Arctic!", c: "The Arctic is at the very top of the world! Everything here is covered in thick ice and snow. It is one of the most magical, icy places on planet Earth!" },
+                    { t: "🐻‍❄️ Polar Bears", c: "Polar Bears are the biggest land predators on Earth! Their fur looks white, but each hair is actually clear like a glass tube. Their skin underneath is jet black!" },
+                    { t: "🌊 The Arctic Ocean", c: "Under all the ice is a real ocean called the Arctic Ocean. It is covered by a giant floating sheet of ice — like a huge frozen lid on the sea!" },
+                    { t: "🦭 Ringed Seals", c: "Ringed seals are the polar bear's favourite food. They dig holes through the ice to breathe, and keep very still to stay safe from bears!" },
+                    { t: "🦄 The Narwhal — Unicorn of the Sea!", c: "The Narwhal has one giant spiral tusk that can grow as long as a car! Scientists think they use it to sense changes in the icy water." },
+                    { t: "🌌 The Northern Lights", c: "The Aurora Borealis is a dazzling light show in the sky! Tiny particles from the sun crash into the Earth's air at night and make it glow green, purple, and pink!" },
+                    { t: "🦊 The Arctic Fox", c: "In winter, the Arctic Fox is pure white to hide against the snow. In summer, its coat turns brown and grey to blend into rocks. Nature's best costume!" },
+                    { t: "🐋 Bowhead Whales", c: "Bowhead Whales live under the Arctic ice all year long. They have the thickest blubber of any animal — up to 50cm thick — to stay warm in the freezing water!" },
+                    { t: "🐦 Snow Buntings", c: "Snow buntings are brave little birds that fly all the way to the Arctic in spring. They are one of the only birds that nest on the frozen tundra!" },
+                    { t: "❄️ How Snowflakes Are Made", c: "Every single snowflake starts as a tiny speck of dust high in the cloud. Water freezes onto it and grows into a crystal with six perfect points — no two snowflakes are alike!" },
+                    { t: "🌊 Sea Ice Vs. Land Ice", c: "Sea ice floats on the Arctic Ocean and grows in winter. Land ice, called glaciers, sits on solid ground and is made of thousands of years of packed snow!" },
+                    { t: "🦛 The Walrus", c: "Walruses use their huge tusks to pull themselves up onto the ice, and to fight rivals. A big walrus can weigh as much as a small car!" },
+                    { t: "🐧 There Are NO Penguins Here!", c: "This is a fun fact: Penguins only live in the SOUTH at the Antarctic, not the Arctic. Polar Bears and Penguins never meet in the wild!" },
+                    { t: "🌙 Midnight Sun", c: "In Arctic summer, the sun NEVER sets for months! The sky stays bright all night. Then in winter, the sun NEVER rises for weeks — total darkness!" },
+                    { t: "🐝 Tiny Arctic Bees!", c: "Yes! Tiny fuzzy bees live in the Arctic too! They have extra-fluffy coats to stay warm and they shiver to warm up their wings before flying in the cold." },
+                    { t: "🏔️ Permafrost — The Frozen Ground", c: "The ground in the Arctic is called permafrost — it stays frozen ALL YEAR, even in summer. Some permafrost has been frozen for over 700,000 years!" },
+                    { t: "🦌 Arctic Reindeer (Caribou)", c: "Caribou have hollow hairs that trap warm air around their body like a cozy jacket. Their wide hooves work like snowshoes to walk on top of the snow!" },
+                    { t: "💎 Arctic Ice Facts", c: "The Arctic ice sheet is shrinking because the Earth is getting warmer. Scientists travel there to study the ice to understand how our planet is changing." },
+                    { t: "🔬 Surviving the Cold", c: "Some Arctic fish have a special 'antifreeze' protein in their blood that stops them from freezing solid — like magic inside their bodies!" },
+                    { t: "❄️ Arctic Super Quiz!", c: "Which animal's hair is actually transparent (clear) — not white? 🐻‍❄️", options: ["Arctic Fox 🦊", "Polar Bear 🐻‍❄️", "Snow Bunting 🐦"], correct: 1 }
+                ]
+            },
+            { 
+                id: 'iceworld', icon: '🏔️', name: 'Ice Worlds', color: '#a29bfe',
+                icy: true,
+                pages: [
+                    { t: "🏔️ Welcome to Ice Worlds!", c: "Our planet is home to incredible icy wonders — from glowing blue glaciers to caves made entirely of ice. Let's explore them all!" },
+                    { t: "🧊 What IS Ice?", c: "Ice is water that has frozen solid at 0°C (32°F). When billions of water drops freeze together, they can form iceberg mountains, glaciers, and entire frozen seas!" },
+                    { t: "🌊 Icebergs", c: "An iceberg is a giant floating mountain of ice. The sneaky part? Only 10% sticks above the water! The other 90% is hidden underwater — like a secret giant!" },
+                    { t: "😱 The Titanic & Icebergs", c: "In 1912, a huge ship called the Titanic bumped into a hidden iceberg in the ocean. The underwater part of the iceberg was much bigger than anyone could see!" },
+                    { t: "🏔️ Glaciers", c: "Glaciers are rivers of ice that move VERY slowly — just a few centimetres a day. But they are so powerful they can carve mountains and valleys over thousands of years!" },
+                    { t: "💎 Ice Caves", c: "Inside glaciers are magical blue ice caves! The ice squeezes out all the air bubbles, making it appear a deep glowing blue. Explorers use ropes to go inside!" },
+                    { t: "🌡️ The Coldest Place on Earth", c: "The coldest temperature EVER recorded was -89.2°C in Antarctica! At that temperature, if you threw a cup of hot water into the air, it would freeze instantly into a cloud of snow!" },
+                    { t: "❄️ Snowflake Shapes", c: "Scientists have identified 35 different types of snowflakes! They form different star shapes, columns, and plate shapes depending on the temperature and moisture in the cloud." },
+                    { t: "🏒 Ice Sports!", c: "Humans love ice! We skate on it, ski on snow, play ice hockey, and even race bobsleds down frozen tracks at over 130 km per hour — super fast!" },
+                    { t: "🐟 Life Under the Ice", c: "Beneath the thick Arctic sea ice, it's actually dark and cold — but FULL of life! Tiny shrimp, jellyfish, and fish live there, even in winter." },
+                    { t: "🌍 Ice Caps", c: "The North Pole and South Pole are covered in massive ice caps. The Antarctic ice sheet holds 70% of ALL the fresh water on Earth — frozen solid!" },
+                    { t: "🔵 Why Is Deep Ice Blue?", c: "Deep glacier ice looks blue because compressed ice absorbs red light and allows blue light to pass through. It's like nature's own stained glass window!" },
+                    { t: "❄️ Frost Flowers", c: "In super cold weather, tiny crystals can grow on the surface of the ocean ice that look exactly like flowers! They are called frost flowers and they are absolutely beautiful." },
+                    { t: "🌡️ Ice and Climate", c: "Scientists drill deep into glaciers and pull out ice cores — tubes of ice that contain tiny air bubbles from thousands of years ago! It's like reading history from the past!" },
+                    { t: "🏔️ Frozen Waterfalls", c: "In winter, waterfalls can freeze solid into giant columns of ice called 'ice curtains'. Brave climbers use special axes to climb up these frozen waterfalls!" },
+                    { t: "Ice Worlds Super Quiz!", c: "What percentage of an iceberg is hidden UNDERWATER? 🌊", options: ["50%", "75%", "90%"], correct: 2 }
+                ]
+            },
+            { 
+                id: 'savannah', icon: '🦁', name: 'Sunny Savannah', color: '#f1c40f',
+                pages: [
+                    { t: "Welcome to the Savannah!", c: "The Savannah is a giant grassy plain with very few trees. It is warm all year round!" },
+                    { t: "The King of Beasts", c: "Lions live in big families called Prides. The mamas do most of the hunting together!" },
+                    { t: "Tall Giraffes", c: "Giraffes are the tallest land animals. Their long necks help them reach yummy leaves at the very top of trees." },
+                    { t: "Striped Zebras", c: "Every zebra has a unique pattern of stripes, just like your fingerprints! No two zebras are the same." },
+                    { t: "The Fastest Runner", c: "The Cheetah is the fastest land animal. It can run as fast as a car on a highway!" },
+                    { t: "Water Holes", c: "In the dry season, all the animals gather around big puddles called water holes to drink." },
+                    { t: "Huge Elephants", c: "African Elephants are the biggest land animals. They use their trunks like a hand to grab food and spray water." },
+                    { t: "Laughing Hyenas", c: "Hyenas make a sound that sounds like laughing, but it's actually how they talk to their friends!" },
+                    { t: "Termite Mounds", c: "Small bugs called termites build huge mud towers that can be even taller than a human!" },
+                    { t: "Savannah Quiz!", c: "Which animal is the tallest in the Savannah? 🦒", options: ["Elephant 🐘", "Giraffe 🦒", "Lion 🦁"], correct: 1 }
+                ]
+            },
+            { 
+                id: 'desert', icon: '🏜️', name: 'Golden Desert', color: '#e67e22',
+                pages: [
+                    { t: "The Hot Desert", c: "Deserts are places that get very little rain. They can be very hot during the day and cold at night!" },
+                    { t: "Cactus Life", c: "Cacti are special plants that store water inside their thick stems so they can stay green without rain." },
+                    { t: "Ships of the Desert", c: "Camels can walk for many days without drinking water. They store fat in their humps to keep them going!" },
+                    { t: "Night Dwellers", c: "Many desert animals, like Fennec Foxes, sleep during the hot day and come out at night when it's cool." },
+                    { t: "Sand Dunes", c: "The wind blows the sand into giant hills called dunes. They are like waves made of golden dust!" },
+                    { t: "Rattlesnakes", c: "Rattlesnakes use the noisy shake on their tails to say 'Stay back!' to other animals." },
+                    { t: "Oasis Magic", c: "An Oasis is a hidden spot in the desert with fresh water and palm trees. It's like a desert paradise!" },
+                    { t: "Thorny Devils", c: "This tiny lizard has spikes all over its body to protect it from hungry birds." },
+                    { t: "Scorpions", c: "Scorpions have eight legs and a stinger on their tail. Some of them even glow under special purple lights!" },
+                    { t: "Desert Quiz!", c: "Where do Camels store fat for energy? 🐪", options: ["In their humps", "In their feet", "In their ears"], correct: 0 }
+                ]
+            },
+            { 
+                id: 'underground', icon: '🐜', name: 'Deep Underground', color: '#795548',
+                pages: [
+                    { t: "Beneath Our Feet", c: "Deep under the grass is a whole world full of tunnels, roots, and tiny amazing creatures!" },
+                    { t: "Busy Ants", c: "Ants live in giant underground cities called colonies. They work together to build long tunnels." },
+                    { t: "Digging Moles", c: "Moles have powerful shovel-like paws for digging. They are almost blind and use their noses to find food." },
+                    { t: "Earthworm Engineers", c: "Earthworms wiggle through the dirt. They help keep the soil healthy so plants can grow big and strong." },
+                    { t: "Plant Roots", c: "Roots are like straws that drink water from the soil to feed the trees and flowers above." },
+                    { t: "Burrowing Owls", c: "Some owls don't live in trees! They move into old tunnels in the ground to stay safe and cozy." },
+                    { t: "Hidden Gemstones", c: "Deep in the earth, heat and pressure create beautiful shiny rocks like diamonds and rubies!" },
+                    { t: "Rabbit Warrens", c: "Rabbits dig complex homes with many different rooms for sleeping, eating, and hiding." },
+                    { t: "Trapdoor Spiders", c: "These clever spiders build a silk door for their underground home to surprise their lunch!" },
+                    { t: "Underground Quiz!", c: "Which animal uses its paws like shovels to dig? 🐾", options: ["Ant 🐜", "Mole 🐹", "Rabbit 🐰"], correct: 1 }
+                ]
+            }
+        ];
+
+        let activeHabitat = null;
+        let pidx = 0;
+
+        function initAnimals() {
+            const grid = document.getElementById('animalGrid');
+            grid.innerHTML = "";
+            for(let i=0; i<100; i++) {
+                const ani = animalList[i % animalList.length];
+                const card = document.createElement('div');
+                card.className = "giant-animal-card";
+                card.style.borderColor = ani.color;
+                card.onclick = () => { speak(ani.name); createConfetti(card); };
+                card.innerHTML = `<div class="animal-emoji" style="font-size: 12rem;">${ani.emoji}</div><div class="animal-name" style="font-size: 4rem;">${ani.name}</div>`;
+                grid.appendChild(card);
+            }
+        }
+
+        function switchMode(mode) {
+            const grid = document.getElementById('animalGrid');
+            const habitat = document.getElementById('habitatExplorer');
+            const btnT = document.getElementById('btnToddler');
+            const btnE = document.getElementById('btnExplorer');
+            if(mode === 'toddler') {
+                grid.style.display = 'grid'; habitat.style.display = 'none';
+                btnT.classList.add('active'); btnE.classList.remove('active');
+            } else {
+                grid.style.display = 'none'; habitat.style.display = 'block';
+                btnT.classList.remove('active'); btnE.classList.add('active');
+                initHabitats();
+            }
+        }
+
+        function initHabitats() {
+            const nav = document.getElementById('habitatNav');
+            nav.innerHTML = "";
+            habitats.forEach(h => {
+                const chip = document.createElement('div');
+                chip.className = "habitat-chip";
+                chip.style.borderLeft = `5px solid ${h.color}`;
+                chip.innerText = h.icon + " " + h.name;
+                chip.onclick = () => loadBook(h);
+                nav.appendChild(chip);
+            });
+            if(!activeHabitat) loadBook(habitats[0]);
+        }
+
+        function loadBook(h) {
+            activeHabitat = h;
+            pidx = 0;
+            document.getElementById('habitatArt').innerText = h.icon;
+
+            // ❄️ Arctic / Ice mode toggle
+            if (h.icy) {
+                document.body.classList.add('arctic-mode');
+                document.getElementById('snowContainer').style.display = 'block';
+                document.getElementById('iceBadge').style.display = 'inline-block';
+                generateSnow();
+            } else {
+                document.body.classList.remove('arctic-mode');
+                document.getElementById('snowContainer').style.display = 'none';
+                document.getElementById('iceBadge').style.display = 'none';
+                document.getElementById('snowContainer').innerHTML = '';
+            }
+
+            // Update nav chip active states
+            document.querySelectorAll('.habitat-chip').forEach((chip, i) => {
+                chip.classList.toggle('active', habitats[i] === h);
+            });
+
+            updateBook();
+            speak("Welcome to the " + h.name + " book!");
+        }
+
+        function generateSnow() {
+            const container = document.getElementById('snowContainer');
+            container.innerHTML = '';
+            const flakes = ['❄️','🌨️','❅','❆','✦','⋆'];
+            for (let i = 0; i < 40; i++) {
+                const flake = document.createElement('div');
+                flake.className = 'snowflake';
+                flake.innerText = flakes[Math.floor(Math.random() * flakes.length)];
+                flake.style.left = (Math.random() * 100) + 'vw';
+                flake.style.fontSize = (0.8 + Math.random() * 1.5) + 'rem';
+                flake.style.animationDuration = (4 + Math.random() * 8) + 's';
+                flake.style.animationDelay = (-Math.random() * 8) + 's';
+                flake.style.opacity = (0.4 + Math.random() * 0.6).toString();
+                container.appendChild(flake);
+            }
+        }
+
+        function updateBook() {
+            const totalPages = activeHabitat.pages.length;
+            const p = activeHabitat.pages[pidx];
+            document.getElementById('pageTitle').innerText = p.t;
+            document.getElementById('pageContent').innerText = p.c;
+            document.getElementById('pageCounter').innerText = `Page ${pidx + 1} of ${totalPages}`;
+            document.getElementById('prevBtn').style.opacity = pidx === 0 ? "0.3" : "1";
+            document.getElementById('nextBtn').innerText = pidx === totalPages - 1 ? "Finish! 🏁" : "Next ➡️";
+
+            // Quiz logic
+            const quizBox = document.getElementById('quizBox');
+            if (p.options) {
+                quizBox.style.display = 'block';
+                quizBox.innerHTML = '';
+                p.options.forEach((opt, idx) => {
+                    const btn = document.createElement('button');
+                    btn.className = "quiz-option";
+                    btn.innerText = opt;
+                    btn.onclick = () => checkQuiz(idx, p.correct, btn);
+                    quizBox.appendChild(btn);
+                });
+            } else {
+                quizBox.style.display = 'none';
+            }
+        }
+
+        function checkQuiz(selected, correct, btn) {
+            if (selected === correct) {
+                btn.style.background = "#00d2d3";
+                btn.style.color = "white";
+                speak("Correct! You are amazing!");
+                createConfetti(btn);
+            } else {
+                btn.style.background = "#ff7675";
+                btn.style.color = "white";
+                speak("Oops! Try another one!");
+                setTimeout(() => {
+                    btn.style.background = "#fff";
+                    btn.style.color = "#00d2d3";
+                }, 1000);
+            }
+        }
+
+        function nextPage() {
+            const total = activeHabitat.pages.length;
+            if(pidx < total - 1) { 
+                pidx++; 
+                updateBook(); 
+                speak(activeHabitat.pages[pidx].t); 
+            } else { 
+                const msg = activeHabitat.icy 
+                    ? "Incredible! You completed the ice book! You are a Frozen Explorer!" 
+                    : "You finished the book! You are an expert!";
+                speak(msg); 
+                createConfetti(document.getElementById('habitatExplorer')); 
+            }
+        }
+
+        function prevPage() {
+            if(pidx > 0) { pidx--; updateBook(); }
+        }
+
+        function speak(t) {
+            window.speechSynthesis.cancel();
+            const u = new SpeechSynthesisUtterance(t);
+            u.pitch = 1.2;
+            window.speechSynthesis.speak(u);
+        }
+
+        initAnimals();
+    </script>
+</body>
+</html>

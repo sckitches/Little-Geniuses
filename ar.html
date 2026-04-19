@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AR Experience - Little Genius Academyes</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/png" href="logo.png">
+    <style>
+        .ar-container {
+            position: relative;
+            width: 100%;
+            height: 60vh;
+            background: #000;
+            border-radius: 30px;
+            overflow: hidden;
+            border: 5px solid var(--orange);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+            margin-top: 2rem;
+        }
+
+        #cameraPreview {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            /* Removed the mirror scaleX(-1) so it acts like a true world scanner */
+        }
+
+        #arOverlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        /* The AR HUD Panel */
+        .ar-dashboard {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 1rem;
+            border-radius: 15px;
+            z-index: 20;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            border: 4px solid var(--teal);
+        }
+
+        .ar-target {
+            display: inline-block;
+            font-size: 2rem;
+            margin: 0 8px;
+            padding: 8px;
+            background: #f1f5f9;
+            border-radius: 15px;
+            transition: all 0.3s;
+        }
+        .found-target {
+            opacity: 0.4;
+            transform: scale(0.9);
+            filter: grayscale(100%);
+            text-decoration: line-through;
+            background: #dcfce7;
+        }
+
+        .ar-item {
+            position: absolute;
+            font-size: 2.2rem; /* Significantly smaller to make them harder to spot */
+            cursor: pointer;
+            pointer-events: auto;
+            user-select: none;
+            transition: transform 0.2s;
+            text-shadow: 0 3px 10px rgba(0,0,0,0.6);
+            opacity: 0; 
+        }
+
+        /* Scatter and fade animation making them elusive */
+        @keyframes scatterAR {
+            0% { transform: translate(0, 0) scale(0.5) rotate(0deg); opacity: 0; }
+            20% { opacity: 1; transform: translate(-20px, -20px) scale(1) rotate(15deg); }
+            50% { transform: translate(50px, -60px) scale(0.8) rotate(-25deg); opacity: 0.8; }
+            80% { opacity: 1; transform: translate(-40px, 40px) scale(1.1) rotate(10deg); }
+            100% { transform: translate(80px, 20px) scale(0.5) rotate(-40deg); opacity: 0; }
+        }
+
+        .scattered {
+            animation: scatterAR 5s infinite cubic-bezier(0.25, 0.1, 0.25, 1) alternate;
+        }
+    </style>
+</head>
+<body class="bg-clouds bg-dark">
+    <!-- Navigation -->
+    <nav class="top-nav">
+        <a href="index.html" class="logo">
+            <img src="logo.png" alt="Little Genius Academy Academy Logo" class="logo-img">
+            Little Genius Academy
+        </a>
+        <div class="nav-links">
+            <a href="index.html" class="nav-btn bg-red">Home</a>
+            <a href="ar.html" class="nav-btn bg-orange">Restart AR</a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container">
+        <header class="text-center" style="margin: 2rem 0;">
+            <h1 class="rainbow-text" style="font-size:4rem; color:white;">AR Magical Lens</h1>
+            <h2 style="color:#d1d5db; font-family:'Quicksand'">Scan the room! Look closely for the hidden scattered objects!</h2>
+        </header>
+
+        <div class="text-center" id="startGroup">
+            <button class="btn-play bg-orange" style="font-size:2rem; padding:1.5rem 3rem; margin-top:2rem;" onclick="startAR()">Turn On Camera 📷</button>
+        </div>
+
+        <div class="ar-container" id="arBox" style="display:none;">
+            <video id="cameraPreview" autoplay playsinline></video>
+            
+            <div class="ar-dashboard" id="arDash" style="display:none;">
+                <h3 style="color:var(--dark); font-size:1.2rem; margin-bottom:10px;">Find Hidden Things! 🔍</h3>
+                <div id="targetsList"></div>
+            </div>
+
+            <div id="arOverlay"></div>
+        </div>
+
+    </main>
+
+    <script src="script.js"></script>
+    <script>
+        const video = document.getElementById('cameraPreview');
+        const overlay = document.getElementById('arOverlay');
+        const arBox = document.getElementById('arBox');
+        const startGroup = document.getElementById('startGroup');
+        const targetsList = document.getElementById('targetsList');
+        const arDash = document.getElementById('arDash');
+        
+        let spawnInterval;
+        let activeTargets = [];
+        let itemsFound = 0;
+
+        const arItems = ["A", "B", "C", "G", "H", "1", "2", "3", "4", "5", "🐄", "🦁", "🐒", "🐘", "🐠", "🦋"];
+        
+        // Colors slightly blended so they are harder to distinguish rapidly
+        const textColors = ["#ff5e5e", "#feca57", "#1dd1a1", "#01a3a4", "#ff9ff3", "#e0e7ff", "#fef08a"];
+
+        async function startAR() {
+            try {
+                // Uses environment mode directly for back cameras, flipped image is removed for a true 1:1 scanner experience
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { facingMode: "environment" } 
+                });
+                
+                video.srcObject = stream;
+                
+                startGroup.style.display = 'none';
+                arBox.style.display = 'block';
+                arDash.style.display = 'block';
+
+                activeTargets = [];
+                itemsFound = 0;
+                targetsList.innerHTML = '';
+                
+                let tempItems = [...arItems];
+                for(let i=0; i<3; i++) {
+                    let randIndex = Math.floor(Math.random() * tempItems.length);
+                    let selected = tempItems.splice(randIndex, 1)[0];
+                    activeTargets.push(selected);
+                    
+                    let targetEl = document.createElement('div');
+                    targetEl.className = 'ar-target';
+                    targetEl.id = 'target-' + selected;
+                    
+                    if(selected.length === 1 && !selected.match(/[\uD800-\uDBFF][\uDC00-\uDFFF]/)) {
+                        targetEl.style.color = "#333";
+                        targetEl.style.fontWeight = 'bold';
+                    }
+                    
+                    targetEl.innerText = selected;
+                    targetsList.appendChild(targetEl);
+                }
+
+                // Increase spawn frequency a bit so there's always things appearing, but they die fast
+                spawnInterval = setInterval(spawnARItem, 1200);
+            } catch (err) {
+                console.error("Camera access error:", err);
+                alert("Oops! We couldn't turn on your camera. Please make sure you allow camera permissions in your browser.");
+            }
+        }
+
+        function spawnARItem() {
+            if (overlay.children.length > 10) return;
+
+            let itemType;
+            if (Math.random() > 0.4 && itemsFound < activeTargets.length) {
+                const remaining = activeTargets.filter(t => {
+                    const el = document.getElementById('target-' + t);
+                    return el && !el.classList.contains('found-target');
+                });
+                if (remaining.length > 0) {
+                    itemType = remaining[Math.floor(Math.random() * remaining.length)];
+                } else {
+                    itemType = arItems[Math.floor(Math.random() * arItems.length)];
+                }
+            } else {
+                itemType = arItems[Math.floor(Math.random() * arItems.length)];
+            }
+
+            const el = document.createElement('div');
+            el.className = 'ar-item scattered';
+            el.innerText = itemType;
+            el.dataset.type = itemType;
+
+            if(itemType.length === 1 && !itemType.match(/[\uD800-\uDBFF][\uDC00-\uDFFF]/)) {
+                el.style.color = textColors[Math.floor(Math.random() * textColors.length)];
+                el.style.fontWeight = 'bold';
+            }
+
+            // Scatter spawn: Any corner or edge
+            el.style.left = (Math.random() * 95) + '%';
+            el.style.top = (Math.random() * 95) + '%';
+            
+            // Randomly wild animation durations (extremely fast to painfully slow to throw them off)
+            el.style.animationDuration = (Math.random() * 4 + 2) + 's';
+
+            el.onclick = function() {
+                createConfetti(el);
+                
+                const tappedType = el.dataset.type;
+                const targetNode = document.getElementById('target-' + tappedType);
+                if (targetNode && !targetNode.classList.contains('found-target')) {
+                    targetNode.classList.add('found-target');
+                    itemsFound++;
+                    if (itemsFound >= activeTargets.length) {
+                        setTimeout(() => alert('🎉 Great job! You found all the hidden items! 🎉'), 500);
+                    }
+                }
+
+                el.style.opacity = '1';
+                el.innerText = "⭐";
+                el.style.color = "#feca57";
+                el.style.transform = "scale(2)";
+                el.style.animation = "none";
+                
+                setTimeout(() => {
+                    if (el.parentElement) el.remove();
+                }, 300);
+            };
+
+            overlay.appendChild(el);
+            
+            // Very short wild lifespan
+            setTimeout(() => {
+                if (el.parentElement) {
+                    el.style.transition = 'opacity 0.3s';
+                    el.style.opacity = '0';
+                    setTimeout(() => el.remove(), 300);
+                }
+            }, 3000 + Math.random() * 4000);
+        }
+    </script>
+</body>
+</html>

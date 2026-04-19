@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alphabets - Little Geniuses</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 1.5rem;
+            margin-top:2rem;
+        }
+    </style>
+</head>
+<body class="bg-clouds bg-orange">
+    <!-- Navigation -->
+    <nav class="top-nav">
+        <a href="index.html" class="logo">
+            <img src="logo.png" alt="Little Genius Academy Logo" class="logo-img">
+            Little Genius
+        </a>
+        <div class="nav-links">
+            <a href="index.html" class="nav-btn bg-red">Home</a>
+            <a href="alphabets.html" class="nav-btn bg-orange">ABC</a>
+            <a href="numbers.html" class="nav-btn bg-yellow">123</a>
+            <a href="animals.html" class="nav-btn bg-green">Animals</a>
+            <a href="dashboard.html" class="nav-btn bg-dark">Parents</a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container">
+        <header class="text-center" style="margin: 2rem 0;">
+            <h1 class="rainbow-text" style="font-size:3rem; color:white;">Magical Alphabets</h1>
+            <h2 style="color:white; font-family:'Quicksand'">Tap ANY letter to see it come to life!</h2>
+        </header>
+
+        <!-- Dynamic Alphabet Grid -->
+        <div id="alphabetGrid" class="grid-container">
+            <!-- Letters A-Z will be generated here by Javascript -->
+        </div>
+
+    </main>
+    <script src="script.js"></script>
+</body>
+</html>

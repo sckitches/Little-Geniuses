@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trace Shape - Little Genius Academyes</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .trace-container {
+            position: relative;
+            background: white;
+            border-radius: 30px;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+            max-width: 600px;
+            margin: 2rem auto;
+            border: 8px solid var(--blue);
+            text-align: center;
+            overflow: hidden;
+            touch-action: none; /* Prevents scrolling while perfectly tracing on mobile */
+        }
+        
+        .shape-background {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 15rem;
+            opacity: 0.15;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        #drawCanvas {
+            position: relative;
+            z-index: 5;
+            cursor: crosshair;
+            width: 100%;
+            height: 400px;
+        }
+
+        .controls {
+            padding: 1.5rem;
+            background: #f1f5f9;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .score-modal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 100;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+        .score-box {
+            background: white;
+            padding: 4rem;
+            border-radius: 30px;
+            text-align: center;
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 5px solid var(--yellow);
+        }
+        @keyframes popIn {
+            0% { transform: scale(0.5); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body class="bg-clouds bg-blue">
+    <!-- Navigation -->
+    <nav class="top-nav" style="background:#fffafa;">
+        <div class="logo">
+            <span class="mascot" onclick="window.location.href='index.html'">🐵</span> Little Genius Academyes
+        </div>
+        <div class="nav-links">
+            <a href="shapes.html" class="nav-btn bg-red">⬅ Back to Shapes</a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container text-center">
+        <h1 class="rainbow-text" style="font-size: 3rem; color: white; margin-top: 1rem;" id="titleWord">Trace the Shape!</h1>
+
+        <div class="trace-container" id="boxborder">
+            <div class="shape-background" id="bgShape">⭐</div>
+            <canvas id="drawCanvas" width="600" height="400"></canvas>
+            
+            <div class="controls">
+                <button class="nav-btn bg-orange" onclick="clearCanvas()" style="border:none; cursor:pointer;">Erase 🧹</button>
+                <button class="nav-btn bg-green" onclick="finishTrace()" style="border:none; cursor:pointer; padding: 0.8rem 3rem;">Done! ✔️</button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Score Overlay -->
+    <div class="score-modal" id="scoreModal">
+        <div class="score-box" id="scoreBox">
+            <h1 style="font-size:5rem;" id="scoreEmoji">🏆</h1>
+            <h2 style="font-size:3rem; color:var(--dark); margin: 1rem 0;">You scored <span id="finalScore" style="color:var(--red);">10</span> / 10!</h2>
+            <p style="font-size:1.5rem; color:#444; font-family:'Quicksand'; margin-bottom:2rem;" id="scoreMessage">Perfect tracing!</p>
+            <button class="nav-btn bg-blue" onclick="window.location.href='shapes.html'" style="border:none; cursor:pointer; padding:1rem 2rem; font-size:1.5rem;">Play Another Shape 🔁</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // Load target shape from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const activeShape = urlParams.get('s') || '⭐';
+        const shapeName = urlParams.get('n') || 'Start Tracing!';
+        const shapeColor = urlParams.get('c') || '#3b82f6';
+        
+        document.getElementById('bgShape').innerText = activeShape;
+        document.getElementById('titleWord').innerText = "Trace the " + shapeName + "!";
+        document.getElementById('boxborder').style.borderColor = shapeColor;
+
+        // Canvas Drawing Logic
+        const canvas = document.getElementById('drawCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Resize internal canvas logic to match display exactly
+        let rect = canvas.getBoundingClientRect();
+        canvas.width = rect.width;
+        canvas.height = rect.height;
+
+        let isDrawing = false;
+        let x = 0;
+        let y = 0;
+        
+        // Track the length to generate an AI score later
+        let strokeCount = 0; 
+        let pointsDrawn = 0;
+
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.lineWidth = 15; // Thick marker style naturally 
+        ctx.strokeStyle = shapeColor;
+
+        function startDrawing(e) {
+            isDrawing = true;
+            strokeCount++;
+            const pos = getPos(e);
+            x = pos.x;
+            y = pos.y;
+            e.preventDefault();
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+            e.preventDefault();
+            const pos = getPos(e);
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            ctx.lineTo(pos.x, pos.y);
+            ctx.stroke();
+            x = pos.x;
+            y = pos.y;
+            pointsDrawn++;
+        }
+
+        function stopDrawing(e) {
+            if (isDrawing) {
+                draw(e);
+                isDrawing = false;
+            }
+        }
+
+        function getPos(e) {
+            rect = canvas.getBoundingClientRect();
+            // Handle touches or mouse clicks seamlessly
+            let clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            let clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            return {
+                x: clientX - rect.left,
+                y: clientY - rect.top
+            };
+        }
+
+        // Attach Multi-Support Events
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', stopDrawing);
+        canvas.addEventListener('mouseout', stopDrawing);
+        
+        canvas.addEventListener('touchstart', startDrawing, {passive: false});
+        canvas.addEventListener('touchmove', draw, {passive: false});
+        canvas.addEventListener('touchend', stopDrawing);
+
+        function clearCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            pointsDrawn = 0;
+            strokeCount = 0;
+        }
+
+        function finishTrace() {
+            // Intelligent faux scoring mechanism
+            let score = 0;
+            let message = "";
+            let emoji = "🏆";
+
+            // If they drew enough points they generally "traced" the screen
+            if (pointsDrawn > 300) {
+                // Too messy / scribbled entire canvas out
+                score = Math.floor(Math.random() * (8 - 6 + 1)) + 6; // 6 to 8
+                message = "Great effort! Try following the lines closer!";
+                emoji = "🌟";
+            } else if (pointsDrawn > 50) {
+                // Perfect smooth tracing length
+                score = Math.floor(Math.random() * (10 - 8 + 1)) + 8; // 8 to 10
+                message = "Amazing tracing! You're a Little Genius Academy!";
+                emoji = "🎉";
+            } else if (pointsDrawn > 10) {
+                // Just a line
+                score = Math.floor(Math.random() * (5 - 3 + 1)) + 3; // 3 to 5
+                message = "Keep going! Try dragging your finger further.";
+                emoji = "🖌️";
+            } else {
+                // Pressed done without drawing
+                alert("You haven't drawn anything yet! Try tracing the shape!");
+                return;
+            }
+
+            document.getElementById('finalScore').innerText = score;
+            document.getElementById('scoreMessage').innerText = message;
+            document.getElementById('scoreEmoji').innerText = emoji;
+            
+            // Pop the modal!
+            const modal = document.getElementById('scoreModal');
+            modal.style.display = 'flex';
+            
+            // Explode confetti randomly behind modal
+            createConfetti(document.getElementById('scoreBox'));
+        }
+    </script>
+</body>
+</html>

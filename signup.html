@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Profile - Little Genius Academyes</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="logo.png">
+    <style>
+        .auth-container {
+            max-width: 450px;
+            margin: 4rem auto;
+            background: white;
+            padding: 3rem;
+            border-radius: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            border: 10px solid var(--purple);
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+        .form-group label {
+            display: block;
+            font-family: 'Quicksand';
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--dark);
+        }
+        .form-control {
+            width: 100%;
+            padding: 1rem;
+            border: 3.5px solid #f1f1f1;
+            border-radius: 15px;
+            font-size: 1.2rem;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        .form-control:focus {
+            border-color: var(--purple);
+        }
+        .btn-auth {
+            width: 100%;
+            padding: 1rem;
+            background: var(--purple);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 1.4rem;
+            font-family: 'Fredoka One';
+            cursor: pointer;
+            margin-top: 1rem;
+            box-shadow: 0 8px 0 #3c1685;
+            transition: transform 0.1s, box-shadow 0.1s;
+        }
+        .btn-auth:active {
+            transform: translateY(8px);
+            box-shadow: 0 0 0 #3c1685;
+        }
+    </style>
+</head>
+<body class="bg-clouds bg-purple">
+    <div class="container text-center">
+        <div class="auth-container">
+            <img src="logo.png" alt="Little Genius Academy Academy" class="logo-img" style="margin-bottom: 1.5rem; height: 100px;">
+            <h1 class="rainbow-text" style="font-size: 2.5rem; margin-bottom: 1rem;">New Profile! 🎨</h1>
+            <p style="margin-bottom: 2rem; color: #666;">No email or password needed! Just tell us who you are.</p>
+            
+            <form id="profileForm">
+                <div class="form-group">
+                    <label>Parent's Name</label>
+                    <input type="text" id="parentName" class="form-control" placeholder="Mama/Papa Name" required>
+                </div>
+                <div class="form-group">
+                    <label>Child's Name</label>
+                    <input type="text" id="childName" class="form-control" placeholder="Baby's Name" required>
+                </div>
+                <div class="form-group">
+                    <label>How old is <span id="tempChildName">the Genius</span>?</label>
+                    <select id="childAge" class="form-control" required style="cursor: pointer; background: #fffafa;">
+                        <option value="1">1 Year Old 👶</option>
+                        <option value="2">2 Years Old 🐥</option>
+                        <option value="3">3 Years Old 🎨</option>
+                        <option value="4">4 Years Old 🧩</option>
+                        <option value="5">5+ Years Old 🚀</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-auth">Create Profile! 🚀</button>
+            </form>
+            <div id="choiceBox" style="margin-top:1.5rem; display:none;">
+                <p>Or <a href="login.html" style="color:var(--purple); font-weight:bold;">Switch Account</a></p>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        const existingProfiles = JSON.parse(localStorage.getItem('geniusProfiles') || '[]');
+        if (existingProfiles.length > 0) {
+            document.getElementById('choiceBox').style.display = 'block';
+        }
+
+        document.getElementById('childName').oninput = (e) => {
+            document.getElementById('tempChildName').innerText = e.target.value || "the Genius";
+        };
+
+        document.getElementById('profileForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const parentName = document.getElementById('parentName').value;
+            const childName = document.getElementById('childName').value;
+            const childAge = document.getElementById('childAge').value;
+
+            const newProfile = { parentName, childName, childAge, id: Date.now() };
+            existingProfiles.push(newProfile);
+            
+            localStorage.setItem('geniusProfiles', JSON.stringify(existingProfiles));
+            localStorage.setItem('currentGeniusProfile', JSON.stringify(newProfile));
+            
+            createConfetti(document.querySelector('.auth-container'));
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

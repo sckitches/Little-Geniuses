@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shapes & Colors - Little Genius Academyes</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/png" href="logo.png">
+    <style>
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 1.5rem;
+            margin-top:2rem;
+        }
+    </style>
+</head>
+<body class="bg-clouds bg-blue">
+    <!-- Navigation -->
+    <nav class="top-nav">
+        <a href="index.html" class="logo">
+            <img src="logo.png" alt="Little Genius Academy Academy Logo" class="logo-img">
+            Little Genius Academy
+        </a>
+        <div class="nav-links">
+            <a href="index.html" class="nav-btn bg-red">Home</a>
+            <a href="alphabets.html" class="nav-btn bg-orange">ABC</a>
+            <a href="numbers.html" class="nav-btn bg-yellow">123</a>
+            <a href="animals.html" class="nav-btn bg-green">Animals</a>
+            <a href="shapes.html" class="nav-btn bg-blue">Shapes</a>
+            <button class="menu-toggle" onclick="toggleMenu()">More ▼</button>
+        </div>
+        <!-- Extended menu -->
+        <div class="dropdown-menu" id="extendedMenu">
+            <a href="songs.html" class="nav-btn bg-purple">Songs</a>
+            <a href="games.html" class="nav-btn bg-pink">Games</a>
+            <a href="story.html" class="nav-btn bg-teal">Story</a>
+            <a href="ar.html" class="nav-btn bg-orange">AR Mode</a>
+            <a href="routine.html" class="nav-btn bg-blue">Daily Routine</a>
+            <a href="dashboard.html" class="nav-btn bg-dark">Parents</a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container">
+        <header class="text-center" style="margin: 2rem 0;">
+            <h1 class="rainbow-text" style="font-size:4rem; color:white;">Shapes & Colors</h1>
+            <h2 style="color:white; font-family:'Quicksand'">Pick any shape to practice tracing it!</h2>
+        </header>
+
+        <div id="shapesGrid" class="grid-container">
+            <!-- 30+ Shapes will generate here -->
+        </div>
+
+    </main>
+    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const grid = document.getElementById('shapesGrid');
+            
+            // 32 distinct symbols representing shapes and concepts
+            const shapesData = [
+                { s: "🔴", n: "Red Circle" }, { s: "🟠", n: "Orange Circle" }, { s: "🟡", n: "Yellow Circle" }, { s: "🟢", n: "Green Circle" },
+                { s: "🔵", n: "Blue Circle" }, { s: "🟣", n: "Purple Circle" }, { s: "🟤", n: "Brown Circle" }, { s: "⚫", n: "Black Circle" },
+                { s: "🟥", n: "Red Square" }, { s: "🟧", n: "Orange Square" }, { s: "🟨", n: "Yellow Square" }, { s: "🟩", n: "Green Square" },
+                { s: "🟦", n: "Blue Square" }, { s: "🟪", n: "Purple Square" }, { s: "🟫", n: "Brown Square" }, { s: "⬛", n: "Black Square" },
+                { s: "🔺", n: "Red Triangle" }, { s: "🔻", n: "Down Triangle" }, { s: "🔶", n: "Orange Diamond" }, { s: "🔷", n: "Blue Diamond" },
+                { s: "🔸", n: "Small Orange" }, { s: "🔹", n: "Small Blue" }, { s: "⭕", n: "Red Ring" }, { s: "⭐", n: "Gold Star" },
+                { s: "🌟", n: "Glowing Star" }, { s: "🌠", n: "Shooting Star" }, { s: "🌙", n: "Crescent Moon" }, { s: "☀️", n: "Bright Sun" },
+                { s: "☁️", n: "Fluffy Cloud" }, { s: "⚡", n: "Lightning" }, { s: "❄️", n: "Snowflake" }, { s: "💧", n: "Raindrop" }
+            ];
+
+            const colors = ["#ff5e5e", "#ff9f43", "#feca57", "#1dd1a1", "#01a3a4", "#54a0ff", "#5f27cd", "#ff9ff3"];
+
+            shapesData.forEach((item, index) => {
+                let color = colors[index % colors.length];
+                
+                const card = document.createElement('div');
+                card.className = "feature-card scale-hover";
+                card.style.borderColor = color;
+                card.style.cursor = "pointer";
+                
+                // Clicking takes them to the tracing canvas UI
+                card.onclick = function() { 
+                    createConfetti(this);
+                    setTimeout(() => {
+                        window.location.href = `trace.html?s=${item.s}&n=${encodeURIComponent(item.n)}&c=${encodeURIComponent(color)}`;
+                    }, 500);
+                };
+
+                card.innerHTML = `
+                    <div class="card-body" style="padding:1.5rem;">
+                        <h1 style="font-size: 4rem;">${item.s}</h1>
+                        <p style="font-size: 1rem; margin-top:10px;">${item.n}</p>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        });
+    </script>
+</body>
+</html>

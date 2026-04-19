@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Toddler Phone - Little Genius Academyes</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@500;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        :root {
+            --phone-case: #111;
+            --screen-bg: #000;
+            --ios-blue: #007aff;
+            --ios-green: #34c759;
+            --ios-red: #ff3b30;
+            --ios-yellow: #ffcc00;
+            --ios-purple: #af52de;
+            --ios-orange: #ff9500;
+        }
+
+        body {
+            background: linear-gradient(135deg, #111 0%, #000 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            color: white;
+        }
+
+        /* Phone Container */
+        .phone-case {
+            width: 410px;
+            height: 840px;
+            background: var(--phone-case);
+            border-radius: 65px;
+            padding: 14px;
+            box-shadow: 0 50px 100px rgba(0, 0, 0, 1);
+            border: 5px solid #333;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.5s ease;
+        }
+
+        /* Dynamic Island */
+        .island {
+            position: absolute;
+            top: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 130px;
+            height: 35px;
+            background: #000;
+            border-radius: 25px;
+            z-index: 2000;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            padding: 0 15px;
+            color: white;
+            font-size: 0.7rem;
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .island.expanded {
+            width: 350px;
+            height: 80px;
+        }
+
+        /* Status Bar */
+        .status-bar {
+            height: 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 40px;
+            color: white;
+            font-size: 0.95rem;
+            font-weight: 600;
+            z-index: 1500;
+        }
+
+        /* Screen Area */
+        .phone-screen {
+            flex: 1;
+            background: url('https://images.unsplash.com/photo-1558191053-8edcb01e1da3?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
+            background-size: cover;
+            background-position: center;
+            border-radius: 50px;
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            transition: background 0.5s;
+        }
+
+        /* App Paging View */
+        .pages-container {
+            flex: 1;
+            display: flex;
+            transition: transform 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+            width: 200%;
+            /* Two pages */
+        }
+
+        .page {
+            width: 50%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* App Grid */
+        .app-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            padding: 40px 25px;
+            flex: 1;
+            align-content: start;
+        }
+
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .app-btn {
+            width: 68px;
+            height: 68px;
+            border-radius: 17px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            transition: transform 0.1s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .app-btn:active {
+            transform: scale(0.9);
+        }
+
+        .app-icon-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .app-label {
+            font-size: 0.75rem;
+            color: white;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 1);
+            font-weight: 500;
+            text-align: center;
+        }
+
+        /* Specific App Styles */
+        .app-youtube {
+            background: white;
+            color: #ff0000;
+            font-size: 2.5rem;
+        }
+
+        .app-store {
+            background: linear-gradient(#00c2ff, #007aff);
+            color: white;
+            font-size: 2.22rem;
+        }
+
+        .app-weather {
+            background: linear-gradient(#4facfe, #00f2fe);
+            font-size: 2.2rem;
+        }
+
+        .app-clock {
+            background: #000;
+            font-size: 2.2rem;
+        }
+
+        .app-calc {
+            background: var(--ios-orange);
+            font-size: 2.2rem;
+        }
+
+        /* Full Screen Apps */
+        .app-full-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 1600;
+            display: none;
+            flex-direction: column;
+            animation: appOpen 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes appOpen {
+            from {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        /* YouTube Kids Interface */
+        #ytKidsApp {
+            background: #fff1f2;
+            color: #333;
+        }
+
+        .yt-header {
+            padding: 20px;
+            text-align: center;
+            color: #ff0000;
+            font-family: 'Fredoka One', cursive;
+            font-size: 1.5rem;
+            border-bottom: 2px solid #ff000022;
+        }
+
+        .yt-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            padding: 15px;
+            overflow-y: auto;
+        }
+
+        .yt-video {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .yt-thumb {
+            width: 100%;
+            height: 150px;
+            background: #eee;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+        }
+
+        /* Calculator Interface */
+        #calcApp {
+            background: #1c1c1e;
+        }
+
+        .calc-display {
+            height: 150px;
+            color: white;
+            font-size: 4rem;
+            display: flex;
+            align-items: flex-end;
+            justify-content: flex-end;
+            padding: 20px;
+            font-weight: 200;
+        }
+
+        .calc-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            padding: 15px;
+        }
+
+        .calc-key {
+            height: 75px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            cursor: pointer;
+            border: none;
+            font-weight: 500;
+            font-family: inherit;
+        }
+
+        .calc-grey {
+            background: #3a3a3c;
+            color: white;
+        }
+
+        .calc-orange {
+            background: var(--ios-orange);
+            color: white;
+        }
+
+        /* Dock */
+        .phone-dock {
+            height: 100px;
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(25px);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 0 15px;
+            margin: 15px;
+            border-radius: 35px;
+            z-index: 1500;
+        }
+
+        .page-dots {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+
+        .dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.4);
+        }
+
+        .dot.active {
+            background: white;
+        }
+
+        .home-bar {
+            width: 140px;
+            height: 5px;
+            background: #fff;
+            border-radius: 10px;
+            margin: 5px auto 15px;
+            cursor: pointer;
+            z-index: 2100;
+        }
+    </style>
+</head>
+
+<body>
+
+    <a href="index.html" class="nav-btn bg-dark nav-back" style="position:fixed; top:20px; left:20px; z-index:5000;">⬅️
+        Home</a>
+
+    <div class="phone-case">
+        <div class="island" id="dynamicIsland">
+            <span id="islandText">9:41 AM</span>
+        </div>
+
+        <div class="status-bar">
+            <span>9:41</span>
+            <div style="display:flex; gap:5px; align-items:center;">📶 LTE 🔋 100%</div>
+        </div>
+
+        <div class="phone-screen" id="mainScreen">
+            <!-- Lock Screen -->
+            <div id="lockScreen" onclick="unlock()"
+                style="position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.4); backdrop-filter:blur(15px); z-index:3000; display:flex; flex-direction:column; align-items:center; padding-top:100px; color:white; transition: 0.6s cubic-bezier(0.19, 1, 0.22, 1);">
+                <div style="font-size: 5.5rem; font-weight:100; margin-bottom:10px;" id="lockTime">09:41</div>
+                <div style="font-size: 1.4rem;">Saturday, March 21</div>
+                <div style="margin-top:auto; margin-bottom:80px; font-size:1.1rem; opacity:0.8;">Swipe to Open 🔓</div>
+            </div>
+
+            <!-- Page Container -->
+            <div class="pages-container" id="pagesContainer">
+                <!-- Dynamic App Pages generated by JS -->
+                <div id="dynamicAppPages" style="display:contents;"></div>
+                        <div class="app-container">
+                            <div class="app-btn" style="background:#ff9500;"
+                                onclick="window.location.href='songs.html'">🎵</div>
+                            <span class="app-label">Music</span>
+                        </div>
+                        <div class="app-container">
+                            <div class="app-btn" style="background:#8e8e93;" onclick="openApp('settingsApp')">⚙️</div>
+                            <span class="app-label">Settings</span>
+                        </div>
+                        <div class="app-container">
+                            <div class="app-btn" style="background:var(--ios-purple);"
+                                onclick="startCall('Mascot', '🐵')">🐵</div>
+                            <span class="app-label">Monkey</span>
+                        </div>
+                        <div class="app-container">
+                            <div class="app-btn" style="background:white;" onclick="startCall('Cow', '🐮')">🐮</div>
+                            <span class="app-label">Cow App</span>
+                        </div>
+                        <div class="app-container">
+                            <div class="app-btn" style="background:white;" onclick="startCall('Dog', '🐶')">🐶</div>
+                            <span class="app-label">Barker</span>
+                        </div>
+                        <div class="app-container">
+                            <div class="app-btn" style="background:white;" onclick="startCall('Cat', '🐱')">🐱</div>
+                            <span class="app-label">Purrier</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="page-dots">
+                <div class="dot active" id="dot0"></div>
+                <div class="dot" id="dot1"></div>
+            </div>
+
+            <!-- Dock -->
+            <div class="phone-dock">
+                <div class="app-btn" style="background:var(--ios-green);" onclick="startCall('Dad', '👨')">📞</div>
+                <div class="app-btn" style="background:#34c759;" onclick="window.location.href='index.html'">🌍</div>
+                <div class="app-btn" style="background:var(--ios-blue);" onclick="openMessages()">💬</div>
+                <div class="app-btn" style="background:#5856d6;" onclick="speak('Searching for fun...')">🎤</div>
+            </div>
+
+            <!-- App Overlays -->
+            <div class="app-full-overlay" id="ytKidsApp" style="background: #000;">
+                <div class="yt-header" style="background:white; display:flex; justify-content:space-between; align-items:center; padding: 10px 20px;">
+                    <span>YouTube Kids 📺</span>
+                    <button onclick="closeApp()" style="border:none; background:none; font-size:1.5rem;">✕</button>
+                </div>
+                <div class="yt-grid" style="flex:1; background:#f1f1f1; overflow-y:auto; padding:10px;">
+                    <!-- Video 1 -->
+                    <div class="yt-video">
+                        <iframe width="100%" height="200" src="https://www.youtube.com/embed/XqZsoesa55w" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                        <div style="padding:10px; font-weight:bold; background:white;">Baby Shark Dance 🦈</div>
+                    </div>
+                    <!-- Video 2 -->
+                    <div class="yt-video">
+                        <iframe width="100%" height="200" src="https://www.youtube.com/embed/_UR-l3QI2nE" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                        <div style="padding:10px; font-weight:bold; background:white;">Wheels on the Bus 🚌</div>
+                    </div>
+                    <!-- Video 3 -->
+                    <div class="yt-video">
+                        <iframe width="100%" height="200" src="https://www.youtube.com/embed/bel5sTir7Xo" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                        <div style="padding:10px; font-weight:bold; background:white;">Phonics Song ABC 🔤</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="app-full-overlay" id="calcApp">
+                <div class="calc-display" id="calcDisplay">0</div>
+                <div class="calc-grid">
+                    <div class="calc-key calc-grey" onclick="calcInput('7')">7</div>
+                    <div class="calc-key calc-grey" onclick="calcInput('8')">8</div>
+                    <div class="calc-key calc-grey" onclick="calcInput('9')">9</div>
+                    <div class="calc-key calc-orange" onclick="calcAction('multiply')">×</div>
+                    <div class="calc-key calc-grey" onclick="calcInput('4')">4</div>
+                    <div class="calc-key calc-grey" onclick="calcInput('5')">5</div>
+                    <div class="calc-key calc-grey" onclick="calcInput('6')">6</div>
+                    <div class="calc-key calc-orange" onclick="calcAction('minus')">−</div>
+                    <div class="calc-key calc-grey" onclick="calcInput('1')">1</div>
+                    <div class="calc-key calc-grey" onclick="calcInput('2')">2</div>
+                    <div class="calc-key calc-grey" onclick="calcInput('3')">3</div>
+                    <div class="calc-key calc-orange" onclick="calcAction('plus')">+</div>
+                    <div class="calc-key calc-grey" style="grid-column: span 2; border-radius:30px; width:100%"
+                        onclick="calcInput('0')">0</div>
+                    <div class="calc-key calc-grey" onclick="calcReset()">C</div>
+                    <div class="calc-key calc-orange" onclick="calcEqual()">=</div>
+                </div>
+            </div>
+
+            <div class="app-full-overlay" id="weatherApp"
+                style="background: linear-gradient(#4facfe, #00f2fe); align-items:center; justify-content:center;">
+                <div style="font-size: 8rem; animation: bounce 2s infinite;">☀️</div>
+                <h1 style="font-size: 3rem;">Toy Town</h1>
+                <h2 style="font-size: 4rem;">72°</h2>
+                <p>Sunny and Fun!</p>
+            </div>
+
+            <div class="app-full-overlay" id="clockApp"
+                style="background:#000; align-items:center; justify-content:center;">
+                <h1 style="font-size: 4rem;">Alarm Set! ⏰</h1>
+                <p style="font-size: 1.5rem; opacity:0.6;">Bedtime in: 08:30:00</p>
+                <div style="font-size:10rem;">🌙</div>
+            </div>
+
+            <div class="app-full-overlay" id="appStoreApp" style="background:#fff; color:#333; padding:20px;">
+                <h1 style="color:var(--ios-blue); font-size: 2.5rem;">App Store 🍎</h1>
+                <div
+                    style="background:#f2f2f7; padding:15px; border-radius:15px; margin-top:20px; display:flex; gap:15px; align-items:center;">
+                    <div
+                        style="width:60px; height:60px; background:var(--ios-red); border-radius:12px; display:flex; align-items:center; justify-content:center; color:white; font-size:2rem;">
+                        🎈</div>
+                    <div style="flex:1;">
+                        <div style="font-weight:bold;">Balloon Pop Pro</div>
+                        <div style="font-size:0.8rem; opacity:0.6;">Educational Fun</div>
+                    </div>
+                    <button class="nav-btn bg-blue" style="border:none; padding:5px 15px;"
+                        onclick="speak('Downloading fun!')">GET</button>
+                </div>
+            </div>
+
+            <div class="app-full-overlay" id="settingsApp" style="background:#f2f2f7; color:#333; padding:20px; overflow-y:auto;">
+                <h1 style="font-size: 2rem; margin-bottom:20px;">Settings ⚙️</h1>
+                
+                <h3 style="opacity:0.6; font-size:0.9rem; margin-bottom:10px; margin-left:10px;">WALLPAPER</h3>
+                <div style="background:white; border-radius:10px; overflow:hidden; margin-bottom:20px;">
+                    <div style="padding:15px; border-bottom:1px solid #ddd; display:flex; justify-content:space-between;"
+                        onclick="changeWallpaper('pink')"><span>Pink Clouds</span> <span style="opacity:0.5;">Set 🌈</span></div>
+                </div>
+
+                <h3 style="opacity:0.6; font-size:0.9rem; margin-bottom:10px; margin-left:10px;">CHOOSE YOUR HERO</h3>
+                <div style="background:white; border-radius:10px; overflow:hidden; margin-bottom:20px;">
+                    <div style="padding:15px; border-bottom:1px solid #ddd; display:flex; justify-content:space-between;"
+                        onclick="changeHero('🐵', 'Turbo Monkey')"><span>Turbo Monkey</span> <span style="font-size:1.5rem;">🐵</span></div>
+                    <div style="padding:15px; border-bottom:1px solid #ddd; display:flex; justify-content:space-between;"
+                        onclick="changeHero('🤖', 'Super Bot')"><span>Super Bot</span> <span style="font-size:1.5rem;">🤖</span></div>
+                    <div style="padding:15px; display:flex; justify-content:space-between;"
+                        onclick="changeHero('🦄', 'Star Unicorn')"><span>Star Unicorn</span> <span style="font-size:1.5rem;">🦄</span></div>
+                </div>
+
+                <h3 style="opacity:0.6; font-size:0.9rem; margin-bottom:10px; margin-left:10px;">SYSTEM</h3>
+                <div style="background:white; border-radius:10px; overflow:hidden;">
+                    <div style="padding:15px; border-bottom:1px solid #ddd; display:flex; justify-content:space-between;"
+                        onclick="speak('Airplane mode is for toys only!')"><span>Airplane Mode</span> <span
+                            style="color:var(--ios-green)">OFF</span></div>
+                    <div style="padding:15px; display:flex; justify-content:space-between;"><span>Face ID</span> <span
+                            style="color:var(--ios-green)">Active 🦁</span></div>
+                </div>
+            </div>
+
+            <div class="app-full-overlay" id="cameraScreen" style="background:#000;">
+                <video id="videoFeed" autoplay playsinline style="width:100%; height:80%; object-fit:cover;"></video>
+                <div style="flex:1; display:flex; justify-content:space-around; align-items:center;">
+                    <div style="width:60px; height:60px; border-radius:50%; background:rgba(255,255,255,0.2);"
+                        onclick="closeApp()"></div>
+                    <div style="width:75px; height:75px; border-radius:50%; border:5px solid white;"
+                        onclick="takePhoto()"></div>
+                    <div style="width:60px; height:60px; border-radius:50%; background:rgba(255,255,255,0.2);">🔄</div>
+                </div>
+            </div>
+
+            <div class="app-full-overlay" id="callScreen"
+                style="background:#1c1c1e; color:white; align-items:center; padding-top:100px;">
+                <div id="callerAvatar"
+                    style="font-size:8rem; background:#3a3a3c; width:150px; height:150px; border-radius:50%; display:flex; align-items:center; justify-content:center;">
+                    👤</div>
+                <h1 id="callerName" style="font-size:2.5rem; margin-top:20px;">Contact</h1>
+                <p id="callStatus" style="font-size:1.2rem; opacity:0.6;">Calling...</p>
+                <div style="margin-top:auto; margin-bottom:100px; display:flex; gap:50px;">
+                    <div onclick="endCall()"
+                        style="background:var(--ios-red); width:80px; height:80px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:2.5rem; transform:rotate(135deg);">
+                        📞</div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="home-bar" onclick="goHome()"></div>
+    </div>
+
+    <script>
+        let currentPage = 0;
+        let lastX = 0;
+
+        function updateTime() {
+            const now = new Date();
+            const timeStr = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+            const fullTime = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            document.querySelectorAll('#lockTime, .status-bar span:first-child').forEach(el => el.textContent = timeStr);
+            document.getElementById('islandText').textContent = fullTime;
+        }
+        setInterval(updateTime, 1000);
+        updateTime();
+
+        function unlock() {
+            document.getElementById('lockScreen').style.transform = 'translateY(-100%)';
+            setTimeout(() => document.getElementById('lockScreen').style.display = 'none', 600);
+            speak("Phone unlocked!");
+        }
+
+        function openApp(id) {
+            if (id === 'cameraScreen') initCamera();
+            document.getElementById(id).style.display = 'flex';
+            expandIsland("Open: " + id.replace('App', '').replace('Screen', ''));
+        }
+
+        function closeApp() {
+            document.querySelectorAll('.app-full-overlay').forEach(el => el.style.display = 'none');
+            stopCamera();
+            expandIsland("Home");
+        }
+
+        function goHome() {
+            closeApp();
+            const ls = document.getElementById('lockScreen');
+            if (ls.style.display !== 'none') unlock();
+        }
+
+        // Camera
+        function initCamera() {
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                navigator.mediaDevices.getUserMedia({ video: true })
+                    .then(stream => {
+                        document.getElementById('videoFeed').srcObject = stream;
+                        window.currentStream = stream;
+                    });
+            }
+        }
+        function stopCamera() {
+            if (window.currentStream) {
+                window.currentStream.getTracks().forEach(t => t.stop());
+                window.currentStream = null;
+            }
+        }
+        function takePhoto() {
+            speak("Click! Cheese!");
+            const flash = document.createElement('div');
+            flash.style.position = 'absolute'; flash.style.top = '0'; flash.style.left = '0'; flash.style.width = '100%'; flash.style.height = '100%'; flash.style.background = 'white'; flash.zIndex = '5000';
+            document.body.appendChild(flash);
+            setTimeout(() => flash.remove(), 100);
+        }
+
+        // App Paging
+        document.getElementById('mainScreen').addEventListener('mousedown', e => lastX = e.clientX);
+        document.getElementById('mainScreen').addEventListener('mouseup', e => {
+            let diff = e.clientX - lastX;
+            if (Math.abs(diff) > 50) {
+                currentPage = diff > 0 ? 0 : 1;
+                document.getElementById('pagesContainer').style.transform = `translateX(-${currentPage * 50}%)`;
+                document.querySelectorAll('.dot').forEach((d, i) => d.className = (i === currentPage ? 'dot active' : 'dot'));
+            }
+        });
+
+        // Calling
+        function startCall(name, icon) {
+            document.getElementById('callScreen').style.display = 'flex';
+            document.getElementById('callerName').textContent = name;
+            document.getElementById('callerAvatar').textContent = icon;
+            document.getElementById('callStatus').textContent = "Calling...";
+            expandIsland("Call: " + name);
+            setTimeout(() => {
+                document.getElementById('callStatus').textContent = "00:03";
+                speak(`Hello! This is ${name}. I love playing with you!`);
+            }, 2000);
+        }
+        function endCall() {
+            document.getElementById('callScreen').style.display = 'none';
+            window.speechSynthesis.cancel();
+            expandIsland("9:41 AM");
+        }
+
+        // Calculator
+        let calcVal = '';
+        function calcInput(v) { 
+            calcVal += v; 
+            document.getElementById('calcDisplay').textContent = calcVal; 
+            speak(v); 
+        }
+        function calcAction(op) {
+            let symbol = op === 'plus' ? '+' : op === 'minus' ? '-' : op === 'multiply' ? '*' : '/';
+            calcVal += ' ' + symbol + ' ';
+            document.getElementById('calcDisplay').textContent = calcVal;
+            speak(op);
+        }
+        function calcReset() { 
+            calcVal = ''; 
+            document.getElementById('calcDisplay').textContent = '0'; 
+            speak("Clear");
+        }
+        function calcEqual() {
+            try {
+                let res = eval(calcVal);
+                document.getElementById('calcDisplay').textContent = res;
+                speak("That equals " + res);
+                calcVal = res.toString();
+            } catch (e) { 
+                calcReset(); 
+                speak("Oops! Try again.");
+            }
+        }
+
+        function expandIsland(text) {
+            const di = document.getElementById('dynamicIsland');
+            document.getElementById('islandText').textContent = text;
+            di.classList.add('expanded');
+            setTimeout(() => di.classList.remove('expanded'), 3000);
+        }
+
+        function changeWallpaper(color) {
+            const bg = color === 'pink' ? 'url(https://images.unsplash.com/photo-1518531985117-7d3914644b75?auto=format&fit=crop&w=1350&q=80)' : '';
+            document.getElementById('mainScreen').style.backgroundImage = bg;
+            speak("Wallpaper updated! So pretty!");
+        }
+
+        function speak(t) {
+            const u = new SpeechSynthesisUtterance(t);
+            u.pitch = 1.2;
+            window.speechSynthesis.speak(u);
+        }
+
+        function openMessages() { alert("Mom: 'I love you! ❤️'"); }
+        function openRoblox() { expandIsland("Joining Roblox..."); speak("Opening Roblox!"); }
+
+        function initApps() {
+            const ageGroup = getAgeGroup();
+            const container = document.getElementById('dynamicAppPages');
+            
+            const library = {
+                'toddler': [
+                    { icon: '📞', label: 'Phone', color: 'var(--ios-green)', click: "startCall('Mom', '👩')" },
+                    { icon: '▶️', label: 'YT Kids', color: 'white', click: "openApp('ytKidsApp')" },
+                    { icon: '🎈', label: 'Balloon Pop', color: 'white', click: "window.location.href='game_balloon.html'" },
+                    { icon: '🦁', label: 'Animals', color: 'white', click: "window.location.href='animals.html'" },
+                    { icon: '🐶', label: 'Pet Care', color: '#ff9ff3', click: "speak('Your puppy is happy! Woof!')" },
+                    { icon: '➗', label: 'Calculator', color: 'var(--ios-orange)', click: "openApp('calcApp')" },
+                    { icon: '⏰', label: 'Clock', color: 'white', click: "openApp('clockApp')" },
+                    { icon: '🎒', label: 'My bag', color: 'white', click: "speak('Your bag is full of stickers!')" }
+                ],
+                'junior': [
+                    { icon: '📞', label: 'Phone', color: 'var(--ios-green)', click: "startCall('Dad', '👨')" },
+                    { icon: '🎮', label: 'Roblox', color: 'white', click: "window.location.href='worlds.html'" },
+                    { icon: '🦴', label: 'Dino Dig', color: '#feca57', click: "speak('You found a T-Rex bone!')" },
+                    { icon: '🧠', label: 'Memory', color: 'white', click: "window.location.href='game_memory.html'" },
+                    { icon: '🔤', label: 'ABC Trace', color: 'white', click: "window.location.href='alphabets.html'" },
+                    { icon: '➗', label: 'Calculator', color: 'var(--ios-orange)', click: "openApp('calcApp')" },
+                    { icon: '📖', label: 'Stories', color: 'white', click: "window.location.href='story.html'" },
+                    { icon: '⭐', label: 'Star Map', color: '#54a0ff', click: "speak('Look at the Big Dipper!')" }
+                ],
+                'big-kid': [
+                    { icon: '📞', label: 'Phone', color: 'var(--ios-green)', click: "startCall('Bestie', '👧')" },
+                    { icon: '🌐', label: 'Worlds', color: 'white', click: "window.location.href='worlds.html'" },
+                    { icon: '📖', label: 'Encyclopedia', color: 'white', click: "window.location.href='animals.html'" },
+                    { icon: '📷', label: 'AR Camera', color: '#e1e1e1', click: "openApp('cameraScreen')" },
+                    { icon: '➗', label: 'Calculator', color: 'var(--ios-orange)', click: "openApp('calcApp')" },
+                    { icon: '🪄', label: 'Math Quest', color: 'white', click: "window.location.href='game_math.html'" },
+                    { icon: '📚', label: 'Library', color: 'white', click: "window.location.href='story.html'" },
+                    { icon: '🖼️', label: 'Photo View', color: '#1dd1a1', click: "speak('Look at your masterpieces!')" }
+                ]
+            };
+
+            const apps = library[ageGroup] || library['toddler'];
+            let html = '<div class="page"><div class="app-grid">';
+            apps.forEach((app, idx) => {
+                if(idx === 8) html += '</div></div><div class="page"><div class="app-grid">'; // Second page if needed
+                html += `
+                    <div class="app-container">
+                        <div class="app-btn" style="background:${app.color};" onclick="${app.click}">
+                            <div style="font-size: 2.5rem;">${app.icon}</div>
+                        </div>
+                        <span class="app-label">${app.label}</span>
+                    </div>
+                `;
+            });
+            html += '</div></div>';
+            container.innerHTML = html;
+        }
+
+        function changeHero(emoji, name) {
+            const hero = { id: name.toLowerCase(), name: name, emoji: emoji };
+            localStorage.setItem('selectedGeniusHero', JSON.stringify(hero));
+            refreshHUD();
+            speak(name + " is now your hero!");
+            expandIsland("Hero: " + name);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            refreshHUD();
+            initApps();
+            setInterval(updateTime, 1000);
+            updateTime();
+        });
+    </script>
+</body>
+
+</html>

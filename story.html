@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magic Stories - Little Genius Academy Academy</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="logo.png">
+    <style>
+        body { background: #6c5ce7; color: white; overflow-x: hidden; }
+        
+        .story-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px;
+        }
+
+        .story-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .story-card {
+            background: white;
+            border-radius: 40px;
+            padding: 40px;
+            text-align: center;
+            color: #333;
+            cursor: pointer;
+            transition: 0.3s;
+            border: 10px solid white;
+        }
+
+        .story-card:hover {
+            transform: translateY(-10px) rotate(2deg);
+            border-color: #fab1a0;
+        }
+
+        .story-emoji { font-size: 8rem; margin-bottom: 20px; }
+        .story-title { font-family: 'Fredoka One'; font-size: 2rem; color: #6c5ce7; }
+
+        /* Story Player */
+        #storyPlayer {
+            position: fixed;
+            inset: 0;
+            background: #fff;
+            color: #333;
+            z-index: 2000;
+            display: none;
+            flex-direction: column;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .story-box {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .page-text {
+            font-size: 3rem;
+            font-family: 'Quicksand';
+            font-weight: 700;
+            max-width: 800px;
+            margin: 40px 0;
+            line-height: 1.4;
+        }
+
+        .story-controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .reader-btn {
+            background: #6c5ce7;
+            color: white;
+            border: none;
+            padding: 20px 40px;
+            border-radius: 50px;
+            font-family: 'Fredoka One';
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body class="bg-clouds">
+
+    <nav class="top-nav">
+        <a href="index.html" class="logo">
+            <img src="logo.png" alt="Logo" class="logo-img">
+            Little Genius Academy Academy
+        </a>
+    </nav>
+
+    <main class="story-container">
+        <header class="text-center" style="margin-bottom: 50px;">
+            <h1 class="rainbow-text" style="font-size: 4rem;">Magic Storybook 📚✨</h1>
+            <p style="font-size: 1.5rem; font-weight: 700;">Pick a story and let the magic begin!</p>
+        </header>
+
+        <div class="story-grid" id="storyGrid">
+            <!-- Stories injected here -->
+        </div>
+    </main>
+
+    <!-- The Interactive Player -->
+    <div id="storyPlayer">
+        <div style="text-align: right;">
+            <button onclick="closeStory()" class="nav-btn bg-red">✕ Close Story</button>
+        </div>
+
+        <div class="story-box">
+            <div id="activeEmoji" style="font-size: 15rem; animation: bounce 2s infinite;">🎈</div>
+            <div id="pageText" class="page-text">Once upon a time...</div>
+        </div>
+
+        <div class="story-controls">
+            <button class="reader-btn bg-blue" onclick="prevPage()">⬅ Back</button>
+            <button class="reader-btn bg-green" onclick="readAloud()">🔊 Listen</button>
+            <button class="reader-btn bg-purple" onclick="nextPage()">Next ➡️</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        const library = [
+            {
+                title: "The Brave Little Monkey",
+                emoji: "🐵",
+                pages: [
+                    { t: "Once upon a time, there was a brave monkey named Milo.", e: "🐵" },
+                    { t: "Milo loved to swing on the tallest trees in the jungle!", e: "🌴" },
+                    { t: "One day, he found a shiny golden banana at the very top.", e: "🍌" },
+                    { t: "He shared it with all his friends, and they had a big party!", e: "🥳" }
+                ]
+            },
+            {
+                title: "Dino's Big Day",
+                emoji: "🦖",
+                pages: [
+                    { t: "Dino the Dinosaur woke up feeling very excited.", e: "🦖" },
+                    { t: "Today was the Big Dino Race across the volcano!", e: "🌋" },
+                    { t: "He ran as fast as he could, stomp, stomp, stomp!", e: "🏃" },
+                    { t: "He came in first place and won a giant trophy!", e: "🏆" }
+                ]
+            },
+            {
+                title: "Space Adventure",
+                emoji: "🚀",
+                pages: [
+                    { t: "Captain Star launched her rocket into the deep blue space.", e: "🚀" },
+                    { t: "She visited the Moon and found it was made of cheese!", e: "🧀" },
+                    { t: "Then she high-fived an alien named Blip.", e: "👽" },
+                    { t: "It was the best space trip ever!", e: "🌌" }
+                ]
+            }
+        ];
+
+        let currentStory = null;
+        let currentPage = 0;
+
+        function initLibrary() {
+            const grid = document.getElementById('storyGrid');
+            library.forEach((story, idx) => {
+                const card = document.createElement('div');
+                card.className = "story-card";
+                card.onclick = () => openStory(idx);
+                card.innerHTML = `
+                    <div class="story-emoji">${story.emoji}</div>
+                    <div class="story-title">${story.title}</div>
+                    <p style="font-weight:700; opacity:0.6; margin-top:10px;">Tap to Start Read-Along!</p>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function openStory(idx) {
+            currentStory = library[idx];
+            currentPage = 0;
+            document.getElementById('storyPlayer').style.display = 'flex';
+            updatePage();
+            speak("Welcome to " + currentStory.title);
+        }
+
+        function closeStory() {
+            document.getElementById('storyPlayer').style.display = 'none';
+            window.speechSynthesis.cancel();
+        }
+
+        function updatePage() {
+            const page = currentStory.pages[currentPage];
+            document.getElementById('pageText').innerText = page.t;
+            document.getElementById('activeEmoji').innerText = page.e;
+        }
+
+        function nextPage() {
+            if (currentPage < currentStory.pages.length - 1) {
+                currentPage++;
+                updatePage();
+                readAloud();
+            } else {
+                speak("The End! Great reading!");
+                closeStory();
+            }
+        }
+
+        function prevPage() {
+            if (currentPage > 0) {
+                currentPage--;
+                updatePage();
+                readAloud();
+            }
+        }
+
+        function readAloud() {
+            speak(currentStory.pages[currentPage].t);
+        }
+
+        function speak(t) {
+            window.speechSynthesis.cancel();
+            const u = new SpeechSynthesisUtterance(t);
+            u.pitch = 1.1;
+            u.rate = 0.9;
+            window.speechSynthesis.speak(u);
+        }
+
+        initLibrary();
+    </script>
+</body>
+</html>

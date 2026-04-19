@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Little Worlds Universe - Little Genius Academy Academy</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        :root {
+            --world-primary: #6c5ce7;
+            --world-accent: #fdcb6e;
+        }
+        body { 
+            background: #0f172a; 
+            color: white; 
+            overflow-x: hidden;
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        /* Particles Background */
+        .stars-container {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            opacity: 0.5;
+            animation: twinkle var(--duration) infinite ease-in-out;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        /* Universe Theme Header */
+        .universe-header {
+            padding: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(20px);
+            border-bottom: 2px solid rgba(255,255,255,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .coin-box {
+            background: rgba(253, 203, 110, 0.2);
+            padding: 10px 25px;
+            border-radius: 30px;
+            border: 2px solid var(--world-accent);
+            color: var(--world-accent);
+            font-family: 'Fredoka One';
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* The Big 50 Grid */
+        .universe-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 30px;
+            padding: 40px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .world-portal {
+            perspective: 1000px;
+            cursor: pointer;
+        }
+
+        .portal-inner {
+            height: 280px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 35px;
+            padding: 15px;
+            border: 3px solid rgba(255,255,255,0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        .world-portal:hover .portal-inner {
+            transform: translateY(-15px) rotateX(10deg);
+            background: rgba(255,255,255,0.15);
+            border-color: var(--world-accent);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+
+        /* Special Highlights */
+        .portal-25 .portal-inner { border: 5px solid #f1c40f; box-shadow: 0 0 30px #f1c40f; }
+        .portal-39 .portal-inner { border: 5px solid #00d2d3; box-shadow: 0 0 30px #00d2d3; }
+
+        .portal-icon {
+            font-size: 6rem;
+            margin-bottom: 20px;
+            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.3));
+            transition: transform 0.3s;
+        }
+
+        .world-portal:hover .portal-icon {
+            transform: scale(1.2) rotate(10deg);
+        }
+
+        .portal-title {
+            font-family: 'Fredoka One';
+            font-size: 1.4rem;
+            margin-bottom: 5px;
+        }
+
+        .portal-tag {
+            font-size: 0.8rem;
+            background: rgba(0,0,0,0.3);
+            padding: 4px 12px;
+            border-radius: 12px;
+            opacity: 0.8;
+        }
+
+        /* Lock Screen for 50+ Games */
+        .portal-locked {
+            filter: grayscale(1) opacity(0.5);
+            cursor: not-allowed;
+        }
+        .lock-badge {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 1.5rem;
+        }
+
+        /* --- GAME OVERLAY 3.0 --- */
+        #gameOverlay {
+            position: fixed;
+            inset: 0;
+            background: #000;
+            z-index: 5000;
+            display: none;
+            flex-direction: column;
+            animation: zoomIn 0.5s forwards;
+        }
+
+        @keyframes zoomIn { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        canvas {
+            display: block;
+            margin: auto;
+            border-radius: 30px;
+            max-width: 95%;
+            max-height: 75%;
+            border: 10px solid rgba(255,255,255,0.1);
+            background: linear-gradient(#00C9FF, #92FE9D);
+        }
+
+        .mobile-controls {
+            padding: 30px;
+            background: rgba(255,255,255,0.05);
+            display: flex;
+            justify-content: center;
+            gap: 50px;
+        }
+
+        .os-btn {
+            width: 100px;
+            height: 100px;
+            border-radius: 25px;
+            background: white;
+            color: #333;
+            font-size: 2.5rem;
+            border: none;
+            box-shadow: 0 10px 0 #ccc;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .os-btn:active { transform: translateY(10px); box-shadow: 0 0 0 #ccc; }
+
+        .game-hud {
+            position: absolute;
+            top: 100px;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 40px;
+            pointer-events: none;
+        }
+
+        .hud-item {
+            background: rgba(0,0,0,0.6);
+            padding: 15px 30px;
+            border-radius: 20px;
+            font-family: 'Fredoka One';
+            font-size: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="stars-container" id="stars"></div>
+
+    <div class="worlds-container">
+        <header class="universe-header">
+            <a href="index.html" class="nav-btn bg-red">🏠 Exit Universe</a>
+            <div style="text-align:center;">
+                <h1 class="rainbow-text" style="font-size:3rem; margin:0;">Little Worlds 🌐</h1>
+                <p style="opacity:0.7; font-weight:700;">Exploration Hub • 50 Active Zones</p>
+            </div>
+            <div class="coin-box">💰 <span id="totalCoins">1,250</span></div>
+        </header>
+
+        <div class="universe-grid" id="worldsGrid">
+            <!-- Portals will be generated by JS -->
+        </div>
+    </div>
+
+    <!-- The Game Engine View -->
+    <div id="gameOverlay">
+        <div class="universe-header">
+            <button onclick="exitWorld()" class="nav-btn bg-dark">✕ Back to Hub</button>
+            <h2 id="activeWorldTitle" style="font-family:'Fredoka One';">Shape Jungle</h2>
+            <div class="hud-item" style="background:var(--world-accent); color:#333;">🎯 Goal: <span id="gameGoal">Find 3 Stars</span></div>
+        </div>
+
+        <div class="game-hud">
+            <div class="hud-item">⭐ <span id="levelStars">0</span></div>
+            <div class="hud-item">🍎 <span id="learningPoints">0</span></div>
+        </div>
+
+        <canvas id="worldCanvas"></canvas>
+
+        <div class="mobile-controls">
+            <button class="os-btn" onmousedown="handleMove('left')" onmouseup="stopMove()">⬅️</button>
+            <button class="os-btn" style="width: 200px; background:var(--world-accent);" onclick="playerJump()">JUMP!</button>
+            <button class="os-btn" onmousedown="handleMove('right')" onmouseup="stopMove()">➡️</button>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. GENERATE THE BIG 50 WORLDS ---
+        const worldThemes = [
+            { icon: "🦖", title: "Dino Land", tag: "Learning History" },
+            { icon: "🚀", title: "Space Galaxy", tag: "Math Quest" },
+            { icon: "🦁", title: "Spelling Jungle", tag: "A-B-C Safari" },
+            { icon: "🍭", title: "Candy Obby", tag: "Color Matching" },
+            { icon: "🏗️", title: "Block Builder", tag: "Shapes" },
+            { icon: "🌊", title: "Ocean Deep", tag: "Aqua ABCs" },
+            { icon: "🌋", title: "Lava Leap", tag: "Numbers & Counting" },
+            { icon: "❄️", title: "Ice Kingdom", tag: "Logic Puzzle" },
+            { icon: "🤖", title: "Robot Factory", tag: "Coding Primer" },
+            { icon: "🎨", title: "Artist Village", tag: "Creative Play" }
+        ];
+
+        const grid = document.getElementById('worldsGrid');
+        
+        // Generate 50 Worlds
+        for (let i = 1; i <= 50; i++) {
+            const theme = worldThemes[i % worldThemes.length];
+            const portal = document.createElement('div');
+            // Unlock logic: 25 and 39 are now 'Mystery Jewels'
+            const isSpecial = (i === 25 || i === 39);
+            portal.className = `world-portal portal-${i} ${i > 5 && !isSpecial ? 'portal-locked' : ''}`;
+            
+            portal.innerHTML = `
+                <div class="portal-inner" onclick="${(i <= 5 || isSpecial) ? `startWorld(${i}, '${theme.title}')` : 'lockedMsg()'}">
+                    ${(i > 5 && !isSpecial) ? '<div class="lock-badge">🔒</div>' : ''}
+                    ${isSpecial ? '<div class="lock-badge">💎</div>' : ''}
+                    <div class="portal-icon">${isSpecial ? (i === 25 ? '👑' : '⚡') : theme.icon}</div>
+                    <div class="portal-title">${isSpecial ? (i === 25 ? 'Golden Realm' : 'Cyber Node') : theme.title} ${i}</div>
+                    <div class="portal-tag">${isSpecial ? 'LEGENDARY' : theme.tag}</div>
+                </div>
+            `;
+            grid.appendChild(portal);
+        }
+
+        function lockedMsg() { speak("Earn more coins to unlock this secret world!"); }
+
+        // --- 2. THE ADVENTURE ENGINE ---
+        const canvas = document.getElementById('worldCanvas');
+        const ctx = canvas.getContext('2d');
+        let gameRunning = false;
+        let player = { x: 50, y: 300, w: 60, h: 60, dy: 0, dx: 0, grounded: false };
+        let platforms = [];
+        let items = [];
+        let score = 0;
+
+        function startWorld(id, name) {
+            const hero = getCurrentHero();
+            document.getElementById('gameOverlay').style.display = 'flex';
+            
+            // Special Themes for Request
+            let worldName = name;
+            if (id === 25) {
+                worldName = "🌟 GOLDEN ZONE 25";
+                speak("Entering the Legendary Golden Zone!");
+            } else if (id === 39) {
+                worldName = "⚡ CYBER SPEED 39";
+                speak("Warning! Cyber Speed activated!");
+            }
+
+            document.getElementById('activeWorldTitle').innerText = worldName;
+            document.getElementById('gameGoal').innerText = id % 2 === 0 ? "Find the Letters" : "Count the Stars";
+            
+            resizeCanvas();
+            generateLevel(id);
+            gameRunning = true;
+            score = 0;
+            requestAnimationFrame(gameLoop);
+            speak(`Welcome ${hero.name}! Let's play ${worldName}!`);
+        }
+
+        function exitWorld() {
+            gameRunning = false;
+            document.getElementById('gameOverlay').style.display = 'none';
+        }
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth * 0.95;
+            canvas.height = window.innerHeight * 0.65;
+        }
+
+        function generateLevel(id) {
+            platforms = [
+                { x: 0, y: canvas.height - 50, w: 400, h: 50, color: '#27ae60' },
+                { x: 450, y: canvas.height - 180, w: 200, h: 30, color: '#f1c40f' },
+                { x: 750, y: canvas.height - 300, w: 200, h: 30, color: '#e67e22' },
+                { x: 1050, y: canvas.height - 200, w: 200, h: 30, color: '#e74c3c' },
+                { x: 1350, y: canvas.height - 100, w: 500, h: 30, color: '#9b59b6', portal: true }
+            ];
+
+            // Generate items to collect
+            items = [];
+            for (let i = 0; i < 10; i++) {
+                items.push({
+                    x: 200 + (Math.random() * 1200),
+                    y: 100 + (Math.random() * 300),
+                    type: id % 2 === 0 ? 'ABC' : '⭐',
+                    collected: false
+                });
+            }
+            player.x = 50; player.y = 300; player.dx = 0; player.dy = 0;
+        }
+
+        function gameLoop() {
+            if (!gameRunning) return;
+            
+            ctx.clearRect(0,0, canvas.width, canvas.height);
+            
+            // Background color shift based on player X
+            const hue = (player.x / 10) % 360;
+            canvas.style.background = `linear-gradient(hsl(${hue}, 70%, 80%), white)`;
+
+            // Physics
+            player.dy += 1.0; 
+            player.y += player.dy;
+            player.x += player.dx;
+            
+            player.grounded = false;
+            platforms.forEach(p => {
+                ctx.fillStyle = p.color;
+                ctx.fillRect(p.x, p.y, p.w, p.h);
+                
+                // Collision
+                if(player.x < p.x + p.w && player.x + player.w > p.x &&
+                   player.y < p.y + p.h && player.y + player.h > p.y) {
+                    if(player.dy > 0 && player.y + player.h < p.y + 20) {
+                        player.y = p.y - player.h;
+                        player.dy = 0;
+                        player.grounded = true;
+                        if(p.portal) winLevel();
+                    }
+                }
+            });
+
+            // Items
+            items.forEach(item => {
+                if(!item.collected) {
+                    ctx.font = "40px Arial";
+                    ctx.fillText(item.type, item.x, item.y);
+                    
+                    if(Math.abs(player.x - item.x) < 50 && Math.abs(player.y - item.y) < 50) {
+                        item.collected = true;
+                        score++;
+                        document.getElementById('levelStars').innerText = score;
+                        speak(item.type === '⭐' ? "Star collected!" : "Letter found!");
+                    }
+                }
+            });
+
+            // Character
+            const hero = getCurrentHero();
+            ctx.font = "60px Arial";
+            ctx.fillText(hero.emoji, player.x, player.y + 55);
+
+            if(player.y > canvas.height) { player.x = 50; player.y = 300; }
+            requestAnimationFrame(gameLoop);
+        }
+
+        function winLevel() {
+            gameRunning = false;
+            speak("Level Complete! You earned 100 Coins!");
+            const coins = parseInt(document.getElementById('totalCoins').innerText.replace(',',''));
+            document.getElementById('totalCoins').innerText = (coins + 100).toLocaleString();
+            setTimeout(exitWorld, 2000);
+        }
+
+        function handleMove(dir) { player.dx = dir === 'left' ? -8 : 8; }
+        function stopMove() { player.dx = 0; }
+        function playerJump() { if(player.grounded) { player.dy = -22; speak("Boing!"); } }
+
+        function speak(t) {
+            const u = new SpeechSynthesisUtterance(t);
+            u.pitch = 1.2;
+            window.speechSynthesis.speak(u);
+        }
+
+        // Particle background generator
+        function initStars() {
+            const starCount = 50;
+            const container = document.getElementById('stars');
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                const size = Math.random() * 5 + 2;
+                star.style.width = size + 'px';
+                star.style.height = size + 'px';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.setProperty('--duration', (Math.random() * 3 + 2) + 's');
+                container.appendChild(star);
+            }
+        }
+        initStars();
+    </script>
+</body>
+</html>

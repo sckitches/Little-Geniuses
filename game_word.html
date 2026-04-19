@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word Builder - Genius Game Studio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body { background: #fab1a0; color: #2d3436; text-align: center; }
+        .game-header { padding: 20px; background: white; border-bottom: 5px solid #ff7675; }
+        
+        .word-area {
+            margin: 50px auto;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            min-height: 120px;
+        }
+
+        .letter-slot {
+            width: 100px;
+            height: 100px;
+            background: rgba(255,255,255,0.3);
+            border: 5px dashed white;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            font-family: 'Fredoka One';
+            color: white;
+        }
+
+        .letters-pool {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            padding: 40px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 40px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .letter-tile {
+            width: 80px;
+            height: 80px;
+            background: white;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            font-family: 'Fredoka One';
+            cursor: pointer;
+            box-shadow: 0 8px 0 #dfe6e9;
+            transition: transform 0.1s, box-shadow 0.1s;
+            user-select: none;
+        }
+        .letter-tile:active { transform: translateY(8px); box-shadow: 0 0 0 #dfe6e9; }
+
+        #hintBox { font-family: 'Quicksand'; font-size: 2rem; color: white; margin-top: 20px; font-weight: 700; }
+        #wordImage { font-size: 8rem; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+
+    <header class="game-header">
+        <a href="games.html" class="nav-btn bg-dark" style="float:left;">⬅ Games</a>
+        <h1 class="rainbow-text" style="font-size: 3rem;">ABC Word Builder! 🧩</h1>
+    </header>
+
+    <main class="container">
+        <div id="gameBox" style="margin-top: 40px;">
+            <div id="wordImage">🐱</div>
+            <div id="hintBox">Spell the word: CAT</div>
+            
+            <div class="word-area" id="wordArea">
+                <!-- Slots generated here -->
+            </div>
+
+            <div class="letters-pool" id="lettersPool">
+                <!-- Tiles generated here -->
+            </div>
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+    <script>
+        const wordList = [
+            { word: "CAT", emoji: "🐱" },
+            { word: "SUN", emoji: "☀️" },
+            { word: "DOG", emoji: "🐶" },
+            { word: "RED", emoji: "🟥" },
+            { word: "MAP", emoji: "🗺️" },
+            { word: "TOY", emoji: "🧸" },
+            { word: "BOX", emoji: "📦" }
+        ];
+
+        let currentWordIndex = 0;
+        let userSelection = [];
+
+        function initGame() {
+            const wordData = wordList[currentWordIndex];
+            const wordArea = document.getElementById('wordArea');
+            const pool = document.getElementById('lettersPool');
+            
+            document.getElementById('wordImage').innerText = wordData.emoji;
+            document.getElementById('hintBox').innerText = "Spell the word: " + wordData.word;
+            
+            wordArea.innerHTML = "";
+            pool.innerHTML = "";
+            userSelection = [];
+
+            // Create Slots
+            for(let i=0; i<wordData.word.length; i++) {
+                const slot = document.createElement('div');
+                slot.className = "letter-slot";
+                slot.id = "slot-" + i;
+                wordArea.appendChild(slot);
+            }
+
+            // Create Tiles (Scrambled)
+            let letters = wordData.word.split("");
+            // Add some random letters
+            const extra = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            for(let i=0; i<3; i++) letters.push(extra[Math.floor(Math.random()*extra.length)]);
+            
+            letters.sort(() => Math.random() - 0.5);
+
+            letters.forEach(l => {
+                const tile = document.createElement('div');
+                tile.className = "letter-tile";
+                tile.innerText = l;
+                tile.onclick = () => selectLetter(l, tile);
+                pool.appendChild(tile);
+            });
+            
+            speak("Spell " + wordData.word);
+        }
+
+        function selectLetter(l, tile) {
+            const wordData = wordList[currentWordIndex];
+            const nextSlotIndex = userSelection.length;
+            
+            if(nextSlotIndex < wordData.word.length) {
+                // Check if correct letter
+                if(l === wordData.word[nextSlotIndex]) {
+                    userSelection.push(l);
+                    document.getElementById("slot-" + nextSlotIndex).innerText = l;
+                    tile.style.visibility = "hidden";
+                    speak(l);
+                    
+                    if(userSelection.length === wordData.word.length) {
+                        winWord();
+                    }
+                } else {
+                    speak("Not quite! Try another letter.");
+                    tile.style.background = "#ff7675";
+                    setTimeout(() => tile.style.background = "white", 500);
+                }
+            }
+        }
+
+        function winWord() {
+            speak("Great job! You spelled " + wordList[currentWordIndex].word + "!");
+            createConfetti(document.getElementById('wordArea'));
+            currentWordIndex = (currentWordIndex + 1) % wordList.length;
+            setTimeout(initGame, 2000);
+        }
+
+        function speak(t) {
+            const u = new SpeechSynthesisUtterance(t);
+            u.pitch = 1.2;
+            window.speechSynthesis.speak(u);
+        }
+
+        initGame();
+    </script>
+</body>
+</html>

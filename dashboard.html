@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parents - Little Genius Academyes</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@500;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/png" href="logo.png">
+    <style>
+        :root {
+            --premium-blue: #0984e3;
+            --premium-purple: #6c5ce7;
+            --premium-bg: #f0f3f7;
+        }
+
+        body {
+            background-color: var(--premium-bg);
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 20px;
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 30px;
+            padding: 2.5rem;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            margin-bottom: 2rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 20px;
+            text-align: center;
+            transition: 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--premium-purple);
+        }
+
+        .progress-bar-wrap {
+            height: 12px;
+            background: #eee;
+            border-radius: 6px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--premium-blue), var(--premium-purple));
+            width: 0%;
+            transition: width 1s ease-out;
+        }
+
+        .control-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px; width: 26px;
+            left: 4px; bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider { background-color: var(--premium-purple); }
+        input:checked + .slider:before { transform: translateX(26px); }
+
+        .activity-item {
+            display: flex;
+            gap: 15px;
+            padding: 15px 0;
+            border-left: 3px solid var(--premium-blue);
+            padding-left: 20px;
+            margin-left: 10px;
+            position: relative;
+        }
+
+        .activity-item::before {
+            content: '';
+            position: absolute;
+            left: -8px;
+            top: 20px;
+            width: 12px;
+            height: 12px;
+            background: var(--premium-blue);
+            border-radius: 50%;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="top-nav">
+        <a href="index.html" class="logo">
+            <img src="logo.png" alt="Logo" class="logo-img">
+            Little Genius Academy
+        </a>
+        <div class="nav-links">
+            <button class="nav-btn bg-red" onclick="logout()">Switch Profile 🔄</button>
+        </div>
+    </nav>
+
+    <main class="dashboard-container">
+        <header style="margin-bottom: 3rem;">
+            <h1 class="rainbow-text" style="font-size: 3.5rem;">Hello, <span class="parent-name">Parent</span>!</h1>
+            <p style="font-size: 1.2rem; opacity:0.7;">Here is how <span class="child-name">your Little Genius</span> is doing today.</p>
+        </header>
+
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;">
+            <!-- Left Column: Progress -->
+            <div>
+                <section class="glass-panel">
+                    <h2 style="font-family:'Fredoka One'; margin-bottom:1.5rem;">Learning Milestones 🏆</h2>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <span style="font-size: 2.5rem;">🔤</span>
+                            <h3>Literacy</h3>
+                            <div class="progress-bar-wrap"><div class="progress-fill" style="width: 85%;"></div></div>
+                            <small>85% - Excellent!</small>
+                        </div>
+                        <div class="stat-card">
+                            <span style="font-size: 2.5rem;">🔢</span>
+                            <h3>Math</h3>
+                            <div class="progress-bar-wrap"><div class="progress-fill" style="width: 42%;"></div></div>
+                            <small>42% - Gaining speed</small>
+                        </div>
+                        <div class="stat-card">
+                            <span style="font-size: 2.5rem;">🎨</span>
+                            <h3>Creative</h3>
+                            <div class="progress-bar-wrap"><div class="progress-fill" style="width: 70%;"></div></div>
+                            <small>70% - Very creative!</small>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="glass-panel">
+                    <h2 style="font-family:'Fredoka One'; margin-bottom:1.5rem;">Activity Timeline 🕒</h2>
+                    <div class="activity-item">
+                        <div>
+                            <strong>Completed "Deep Jungle" Habitat</strong>
+                            <p style="font-size: 0.9rem; opacity: 0.6;">10 minutes ago • Earned: Jungle Explorer Sticker</p>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div>
+                            <strong>Played "Memory Match"</strong>
+                            <p style="font-size: 0.9rem; opacity: 0.6;">1 hour ago • Score: 1,200 points</p>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div>
+                            <strong>Learned Letter "B"</strong>
+                            <p style="font-size: 0.9rem; opacity: 0.6;">Yesterday • Perfect score on tracing!</p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Right Column: Controls -->
+            <div>
+                <section class="glass-panel" style="background: var(--premium-purple); color: white;">
+                    <h2 style="font-family:'Fredoka One'; margin-bottom:1.5rem;">Parental Controls 🛡️</h2>
+                    
+                    <div class="control-item" style="border-color: rgba(255,255,255,0.2);">
+                        <span>Daily Time Limit</span>
+                        <strong>45 min</strong>
+                    </div>
+                    <input type="range" min="15" max="120" value="45" style="width: 100%; margin: 15px 0;" oninput="this.previousElementSibling.querySelector('strong').innerText = this.value + ' min'">
+
+                    <div class="control-item" style="border-color: rgba(255,255,255,0.2);">
+                        <span>Educational Only Mode</span>
+                        <label class="switch">
+                            <input type="checkbox" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="control-item" style="border-color: rgba(255,255,255,0.2);">
+                        <span>Weekly Reports</span>
+                        <label class="switch">
+                            <input type="checkbox" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <button class="nav-btn bg-yellow" style="width: 100%; border:none; margin-top:2rem; color: #333;" onclick="speak('Settings saved successfully!')">Save Controls</button>
+                </section>
+
+                <section class="glass-panel">
+                    <h2 style="font-family:'Fredoka One'; margin-bottom:1.5rem;">Profile Settings ⚙️</h2>
+                    <label style="font-weight:bold;">Child's Name</label>
+                    <input type="text" id="newName" class="nav-btn" style="width:100%; box-sizing:border-box; background:#f1f5f9; border:none; padding:1rem; border-radius:12px; margin-top:10px;" placeholder="New name...">
+                    
+                    <button class="nav-btn bg-blue" onclick="saveNewName()" style="width:100%; border:none; margin-top:1.5rem; color:white;">Update Profile</button>
+                    <button class="nav-btn bg-red" onclick="window.location.href='login.html'" style="width:100%; border:none; margin-top:10px; color:white;">Logout</button>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+    <script>
+        function saveNewName() {
+            const newName = document.getElementById('newName').value;
+            if (newName && currentProfile) {
+                currentProfile.childName = newName;
+                localStorage.setItem('currentGeniusProfile', JSON.stringify(currentProfile));
+
+                const allProfiles = JSON.parse(localStorage.getItem('geniusProfiles') || '[]');
+                const index = allProfiles.findIndex(p => p.id === currentProfile.id);
+                if (index !== -1) {
+                    allProfiles[index].childName = newName;
+                    localStorage.setItem('geniusProfiles', JSON.stringify(allProfiles));
+                }
+
+                speak("Profile updated! Looking good!");
+                setTimeout(() => location.reload(), 500);
+            }
+        }
+
+        // Fill progress bars smoothly
+        document.addEventListener('DOMContentLoaded', () => {
+            const fills = document.querySelectorAll('.progress-fill');
+            fills.forEach(f => {
+                const target = f.style.width;
+                f.style.width = '0%';
+                setTimeout(() => f.style.width = target, 500);
+            });
+        });
+    </script>
+</body>
+</body>
+
+</html>
